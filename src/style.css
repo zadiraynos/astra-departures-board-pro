@@ -22,13 +22,10 @@ body {
   width: 100vw;
   height: 100vh;
   padding: clamp(18px, 2vw, 32px);
-
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.4vh, 18px);
-
+  gap: clamp(10px, 1.2vh, 16px);
   overflow: hidden;
-
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -42,15 +39,15 @@ body {
   background:
     linear-gradient(
       180deg,
-      rgba(3, 10, 24, 0.12) 0%,
-      rgba(3, 10, 24, 0.28) 42%,
-      rgba(3, 10, 24, 0.76) 100%
+      rgba(2, 8, 20, 0.62) 0%,
+      rgba(2, 8, 20, 0.54) 45%,
+      rgba(2, 8, 20, 0.86) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(3, 10, 24, 0.28) 0%,
-      rgba(3, 10, 24, 0.03) 56%,
-      rgba(3, 10, 24, 0.18) 100%
+      rgba(2, 8, 20, 0.5) 0%,
+      rgba(2, 8, 20, 0.18) 55%,
+      rgba(2, 8, 20, 0.34) 100%
     );
 }
 
@@ -67,8 +64,8 @@ body {
 
 .header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
   flex-shrink: 0;
 }
 
@@ -78,7 +75,7 @@ body {
 
 h1 {
   margin: 0;
-  font-size: clamp(34px, 3.2vw, 62px);
+  font-size: clamp(32px, 3vw, 56px);
   line-height: 0.95;
   font-weight: 900;
   letter-spacing: -0.055em;
@@ -87,31 +84,24 @@ h1 {
 
 .meta {
   text-align: right;
-  font-size: clamp(18px, 1.8vw, 30px);
+  font-size: clamp(18px, 1.6vw, 28px);
   line-height: 1.08;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
 }
 
 .screen-title-row {
   display: flex;
-  align-items: flex-end;
   justify-content: space-between;
+  align-items: flex-end;
   flex-shrink: 0;
 }
 
 .screen-subtitle {
-  font-size: clamp(9px, 0.8vw, 13px);
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #58b7ff;
-  opacity: 0.85;
-  margin-bottom: 4px;
+  display: none;
 }
 
 .screen-title {
-  font-size: clamp(28px, 2.6vw, 48px);
+  font-size: clamp(26px, 2.4vw, 44px);
   line-height: 0.95;
   font-weight: 900;
   letter-spacing: -0.05em;
@@ -121,14 +111,14 @@ h1 {
 .screen-dots {
   display: flex;
   gap: 8px;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
 }
 
 .dot {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .dot.active {
@@ -140,104 +130,86 @@ h1 {
 /* HERO */
 
 .hero-zone {
-  width: min(760px, 54vw);
-  min-height: clamp(220px, 29vh, 360px);
+  width: min(660px, 46vw);
+  min-height: clamp(190px, 24vh, 280px);
 
   padding:
-    clamp(22px, 2vw, 38px)
-    clamp(24px, 2.4vw, 42px);
+    clamp(20px, 1.7vw, 32px)
+    clamp(22px, 2vw, 36px);
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 
-  overflow: hidden;
-  border-radius: clamp(22px, 2vw, 34px);
+  border-radius: clamp(20px, 1.7vw, 30px);
 
   background: linear-gradient(
     135deg,
-    rgba(7, 16, 34, 0.18),
-    rgba(7, 16, 34, 0.06)
+    rgba(7, 16, 34, 0.24),
+    rgba(7, 16, 34, 0.08)
   );
 
   border: 1px solid rgba(255, 255, 255, 0.04);
 
   box-shadow:
-    0 10px 34px rgba(0, 0, 0, 0.14);
+    0 10px 34px rgba(0, 0, 0, 0.12);
 
   flex-shrink: 0;
 }
 
-.hero-zone::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.04),
-      rgba(255, 255, 255, 0)
-    );
-
-  pointer-events: none;
-}
-
 .hero-kicker {
-  font-size: clamp(13px, 1.15vw, 20px);
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: clamp(12px, 1vw, 17px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #58b7ff;
-  margin-bottom: clamp(8px, 1vh, 14px);
+  color: #6bbdff;
+  margin-bottom: clamp(8px, 0.8vh, 12px);
 }
 
 .hero-main-row {
   display: flex;
   align-items: center;
-  gap: clamp(12px, 1.4vw, 22px);
-  margin-bottom: clamp(6px, 0.8vh, 12px);
+  gap: clamp(12px, 1.2vw, 20px);
+  margin-bottom: clamp(4px, 0.7vh, 10px);
 }
 
 .hero-time {
-  font-size: clamp(66px, 7vw, 120px);
+  font-size: clamp(58px, 5.8vw, 104px);
   line-height: 0.9;
   font-weight: 900;
   letter-spacing: -0.075em;
 }
 
 .hero-status {
-  padding: clamp(8px, 0.8vw, 13px) clamp(12px, 1.2vw, 18px);
+  padding: clamp(7px, 0.7vw, 11px) clamp(12px, 1.1vw, 18px);
   border-radius: 999px;
-
-  font-size: clamp(11px, 0.9vw, 15px);
+  font-size: clamp(10px, 0.85vw, 14px);
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .hero-title {
-  font-size: clamp(34px, 3.4vw, 64px);
-  line-height: 0.92;
+  font-size: clamp(30px, 2.9vw, 52px);
+  line-height: 0.94;
   font-weight: 900;
-  letter-spacing: -0.065em;
+  letter-spacing: -0.06em;
   text-transform: uppercase;
-  max-width: 96%;
+  max-width: 100%;
 }
 
 .hero-subtitle {
-  margin-top: clamp(10px, 1vh, 16px);
-  font-size: clamp(18px, 1.4vw, 26px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.82);
+  margin-top: clamp(8px, 0.8vh, 14px);
+  font-size: clamp(16px, 1.25vw, 22px);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .hero-secondary {
   display: none;
 }
 
-/* SCHEDULE */
+/* TABLE */
 
 .schedule-area {
   flex: 1;
@@ -246,23 +218,22 @@ h1 {
 }
 
 .section {
+  height: 100%;
   overflow: hidden;
   border-radius: clamp(18px, 1.5vw, 26px);
 
   background:
     linear-gradient(
       180deg,
-      rgba(5, 19, 34, 0.72),
-      rgba(5, 18, 32, 0.58)
+      rgba(5, 19, 34, 0.82),
+      rgba(5, 18, 32, 0.68)
     );
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 
   box-shadow:
-    0 16px 50px rgba(0, 0, 0, 0.22),
+    0 16px 50px rgba(0, 0, 0, 0.26),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  height: 100%;
 }
 
 .section + .section {
@@ -270,56 +241,51 @@ h1 {
 }
 
 .section-title {
-  padding: clamp(12px, 1.2vh, 18px) 22px 2px;
-
-  font-size: clamp(13px, 1vw, 17px);
+  padding: clamp(12px, 1vh, 16px) 22px 2px;
+  font-size: clamp(13px, 1vw, 18px);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: #58b7ff;
+  color: #6bbdff;
 }
 
 .table-head {
   display: grid;
-  grid-template-columns: 150px 1fr 240px 280px;
+  grid-template-columns: 140px 1fr 220px 260px;
   gap: 18px;
-
-  padding: clamp(8px, 1vh, 12px) 22px;
-
-  font-size: clamp(10px, 0.75vw, 12px);
+  padding: clamp(8px, 0.9vh, 12px) 22px;
+  font-size: clamp(10px, 0.75vw, 13px);
   font-weight: 900;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .departure-row {
   display: grid;
-  grid-template-columns: 150px 1fr 240px 280px;
+  grid-template-columns: 140px 1fr 220px 260px;
   gap: 18px;
-
   align-items: center;
 
-  min-height: clamp(58px, 7.2vh, 82px);
-  padding: clamp(8px, 1vh, 12px) 22px;
+  min-height: clamp(62px, 7.6vh, 92px);
+  padding: clamp(10px, 1vh, 14px) 22px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .departure-row:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .time {
-  font-size: clamp(24px, 2.1vw, 34px);
+  font-size: clamp(28px, 2.3vw, 38px);
   line-height: 1;
   font-weight: 900;
   letter-spacing: -0.055em;
 }
 
 .route-title {
-  font-size: clamp(18px, 1.6vw, 25px);
+  font-size: clamp(20px, 1.7vw, 28px);
   line-height: 1.05;
   font-weight: 900;
   letter-spacing: -0.04em;
@@ -328,22 +294,21 @@ h1 {
 
 .note {
   margin-top: 4px;
-  font-size: clamp(11px, 0.9vw, 14px);
+  font-size: clamp(12px, 0.9vw, 15px);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .ship {
-  font-size: clamp(16px, 1.4vw, 22px);
+  font-size: clamp(17px, 1.45vw, 23px);
   font-weight: 900;
   letter-spacing: -0.035em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.84);
 }
 
 .status {
   width: 100%;
-  min-height: clamp(36px, 4.6vh, 46px);
+  min-height: clamp(38px, 4.8vh, 50px);
 
   display: flex;
   align-items: center;
@@ -352,48 +317,47 @@ h1 {
   padding: 8px 14px;
   border-radius: 11px;
 
-  font-size: clamp(12px, 1vw, 16px);
+  font-size: clamp(13px, 1vw, 17px);
   font-weight: 900;
   letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
 .status-scheduled {
-  background: rgba(0, 150, 76, 0.24);
-  color: #7dff9a;
-  border: 1px solid rgba(86, 255, 132, 0.44);
+  background: rgba(0, 150, 76, 0.28);
+  color: #8cffaa;
+  border: 1px solid rgba(86, 255, 132, 0.5);
 }
 
 .status-waiting {
-  background: rgba(46, 124, 255, 0.26);
-  color: #8cc6ff;
-  border: 1px solid rgba(100, 174, 255, 0.5);
+  background: rgba(46, 124, 255, 0.3);
+  color: #9dccff;
+  border: 1px solid rgba(100, 174, 255, 0.56);
 }
 
 .status-boarding {
-  background: rgba(255, 188, 40, 0.26);
+  background: rgba(255, 188, 40, 0.32);
   color: #ffe071;
-  border: 1px solid rgba(255, 204, 68, 0.58);
-  box-shadow: 0 0 28px rgba(255, 188, 40, 0.12);
+  border: 1px solid rgba(255, 204, 68, 0.64);
 }
 
 .status-last-call {
-  background: rgba(255, 120, 30, 0.26);
+  background: rgba(255, 120, 30, 0.3);
   color: #ffad5f;
-  border: 1px solid rgba(255, 145, 60, 0.58);
+  border: 1px solid rgba(255, 145, 60, 0.6);
 }
 
 .status-delay,
 .status-cancelled {
-  background: rgba(255, 70, 70, 0.24);
+  background: rgba(255, 70, 70, 0.28);
   color: #ff8b8b;
-  border: 1px solid rgba(255, 100, 100, 0.5);
+  border: 1px solid rgba(255, 100, 100, 0.56);
 }
 
 .status-departed {
-  background: rgba(140, 150, 165, 0.16);
-  color: rgba(255, 255, 255, 0.58);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(140, 150, 165, 0.18);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* IDLE */
@@ -408,19 +372,16 @@ h1 {
 .idle-card {
   min-height: clamp(120px, 15vh, 170px);
   padding: clamp(20px, 1.8vw, 28px);
-
   border-radius: clamp(22px, 1.8vw, 30px);
 
   background: linear-gradient(
     135deg,
-    rgba(7, 16, 34, 0.14),
+    rgba(7, 16, 34, 0.16),
     rgba(7, 16, 34, 0.08)
   );
 
   border: 1px solid rgba(255, 255, 255, 0.04);
-
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .idle-label {
@@ -428,7 +389,7 @@ h1 {
   font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #58b7ff;
+  color: #6bbdff;
   margin-bottom: 12px;
 }
 
@@ -445,61 +406,83 @@ h1 {
   color: rgba(255, 255, 255, 0.48);
 }
 
-/* STATES */
-
-.error,
-.empty {
-  padding: 24px;
-  border-radius: 20px;
-  text-align: center;
-
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-}
-
 .footer {
   flex-shrink: 0;
-
   font-size: clamp(9px, 0.7vw, 12px);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.42);
 }
 
-/* LOW HEIGHT SCREENS */
+/* VERTICAL SCREENS */
 
-@media (max-height: 820px) {
+@media (orientation: portrait) {
+  .board {
+    padding: 28px 24px 20px;
+    gap: 14px;
+  }
+
+  h1 {
+    font-size: clamp(34px, 5vw, 58px);
+  }
+
+  .screen-title {
+    font-size: clamp(28px, 4vw, 46px);
+  }
+
   .hero-zone {
-    min-height: 220px;
+    width: 100%;
+    min-height: clamp(210px, 22vh, 300px);
   }
 
   .hero-time {
-    font-size: clamp(58px, 6vw, 88px);
+    font-size: clamp(68px, 10vw, 120px);
   }
 
   .hero-title {
-    font-size: clamp(30px, 3vw, 48px);
-  }
-
-  .departure-row {
-    min-height: 58px;
-  }
-}
-
-/* NARROW SCREENS */
-
-@media (max-width: 1200px) {
-  .hero-zone {
-    width: 66vw;
+    font-size: clamp(34px, 5vw, 58px);
   }
 
   .table-head,
   .departure-row {
-    grid-template-columns: 120px 1fr 190px 230px;
+    grid-template-columns: 110px 1fr 160px 200px;
+    gap: 12px;
+  }
+
+  .departure-row {
+    min-height: clamp(66px, 6.8vh, 88px);
+  }
+
+  .route-title {
+    font-size: clamp(18px, 2.2vw, 26px);
+  }
+
+  .status {
+    font-size: clamp(12px, 1.5vw, 16px);
   }
 
   .idle-panel {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
+  }
+}
+
+/* LOW HEIGHT */
+
+@media (max-height: 820px) {
+  .hero-zone {
+    min-height: 190px;
+  }
+
+  .hero-time {
+    font-size: clamp(54px, 5vw, 82px);
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 2.8vw, 44px);
+  }
+
+  .departure-row {
+    min-height: 58px;
   }
 }
