@@ -123,6 +123,31 @@ function getStatus(row, now) {
   return getAutoStatus(departure, now)
 }
 
+function getTimeLeftText(row) {
+  const now = new Date()
+
+  const diffMinutes = Math.round(
+    (row.departure.getTime() - now.getTime()) / 60000
+  )
+
+  if (diffMinutes > 60) {
+    const hours = Math.floor(diffMinutes / 60)
+    const minutes = diffMinutes % 60
+
+    return `До отправления: ${hours} ч ${minutes} мин`
+  }
+
+  if (diffMinutes > 0) {
+    return `До отправления: ${diffMinutes} мин`
+  }
+
+  if (diffMinutes > -15) {
+    return 'Рейс отправляется'
+  }
+
+  return 'Рейс отправлен'
+}
+
 function shouldShowRow(row, now) {
   if (row.is_active === false || String(row.is_active).toUpperCase() === 'FALSE') return false
 
@@ -196,53 +221,34 @@ function DepartureRow({ row }) {
 
       <div className="ship">{row.ship}</div>
 
-      <div className={`status ${row.status.className}`}>
-        {row.status.label}
-      </div>
+      <div className={`status ${row.status.className}`}>{row.status.label}</div>
     </div>
   )
 }
+
 function IdlePanel() {
   return (
     <div className="idle-panel">
-      {/* <div className="idle-card">
-        <div className="idle-label">Навигация</div>
-        <div className="idle-value">
-          Рейсы на сегодня завершены
-        </div>
-        <div className="idle-sub">
-          Расписание обновится автоматически
-        </div>
-      </div>
-      */}
-
       <div className="idle-card">
         <div className="idle-label">Билеты онлайн</div>
         <div className="idle-value">astra-marine.ru</div>
-        <div className="idle-sub">
-          Проверьте расписание и купите билет на сайте
-        </div>
+        <div className="idle-sub">Проверьте расписание и купите билет на сайте</div>
       </div>
 
       <div className="idle-card">
         <div className="idle-label">Погода сейчас</div>
         <div className="idle-value">+16°</div>
-        <div className="idle-sub">
-          Следите за объявлениями на причале
-        </div>
+        <div className="idle-sub">Следите за объявлениями на причале</div>
       </div>
 
       <div className="idle-card">
         <div className="idle-label">Телефон</div>
         <div className="idle-value">+7 (812) 426-17-17</div>
-        <div className="idle-sub">
-          Служба заботы о пассажирах
-        </div>
+        <div className="idle-sub">Служба заботы о пассажирах</div>
       </div>
     </div>
   )
 }
-
 
 function Section({ title, rows }) {
   if (!rows.length) return null
@@ -270,7 +276,7 @@ function Section({ title, rows }) {
   )
 }
 
-function HeroZone({ rows, title }) {
+function HeroZone({ rows, title, now }) {
   if (!rows.length) {
     return (
       <section className="hero-zone">
@@ -282,7 +288,6 @@ function HeroZone({ rows, title }) {
   }
 
   const main = rows[0]
-  const secondary = rows.slice(1)
 
   return (
     <section className="hero-zone">
@@ -298,19 +303,9 @@ function HeroZone({ rows, title }) {
       <div className="hero-title">{main.route}</div>
       <div className="hero-subtitle">{main.ship}</div>
 
-      {secondary.length ? (
-        <div className="hero-secondary">
-          {secondary.map((row) => (
-            <div className="hero-mini-card" key={`${row.date}-${row.time}-${row.route}-${row.ship}`}>
-              <div className="hero-mini-time">{row.time}</div>
-              <div>
-                <div className="hero-mini-route">{row.route}</div>
-                <div className="hero-mini-ship">{row.ship}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      <div className="hero-countdown">
+        {getTimeLeftText(main, now)}
+      </div>
     </section>
   )
 }
@@ -375,7 +370,6 @@ function App() {
     {
       type: 'meteor',
       title: 'Метеоры',
-      subtitle: 'Ближайшие отправления',
       heroTitle: 'Ближайшее отправление',
       heroRows: getHeroRows(meteorRows),
       content: <Section rows={meteorRows} />,
@@ -383,7 +377,6 @@ function App() {
     {
       type: 'cruise',
       title: 'Дневные и вечерние прогулки',
-      subtitle: 'Ближайшие отправления',
       heroTitle: 'Ближайшее отправление',
       heroRows: getHeroRows(cruiseRows),
       content: <Section rows={cruiseRows} />,
@@ -391,7 +384,6 @@ function App() {
     {
       type: 'common',
       title: 'Общее расписание',
-      subtitle: 'Ближайшие отправления',
       heroTitle: 'Ближайшее отправление',
       heroRows: getHeroRows(visibleRows),
       content: (
@@ -410,12 +402,7 @@ function App() {
   const displayDate = visibleRows[0]?.date || getDateKey(now)
 
   return (
-    <main
-      className="board"
-      style={{
-        backgroundImage: `url(${heroImage})`,
-      }}
-    >
+    <main className="board" style={{ backgroundImage: `url(${heroImage})` }}>
       <div className="board-overlay" />
 
       <header className="header">
@@ -435,19 +422,16 @@ function App() {
       </header>
 
       <div className="screen-title-row">
-        <div>
-          <div className="screen-title">{activeScreen.title}</div>
-        </div>
-
+        <div className="screen-title">{activeScreen.title}</div>
         <ScreenDots activeIndex={screenIndex} count={screens.length} />
       </div>
 
       {error ? <div className="error">{error}</div> : null}
 
-      <HeroZone rows={activeScreen.heroRows} title={activeScreen.heroTitle} />
+      <HeroZone rows={activeScreen.heroRows} title={activeScreen.heroTitle} now={now} />
 
       <div className="schedule-area">
-      {activeScreen.heroRows.length ? activeScreen.content : <IdlePanel />}
+        {activeScreen.heroRows.length ? activeScreen.content : <IdlePanel />}
       </div>
 
       <footer className="footer">Информация обновляется автоматически</footer>
