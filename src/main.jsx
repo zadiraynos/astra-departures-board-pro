@@ -16,6 +16,7 @@ const PIER_ID = 'spusk_so_lvami'
 const REFRESH_DATA_MS = 60_000
 const REFRESH_CLOCK_MS = 15_000
 const SCREEN_DURATION_MS = 20_000
+const NAVIGATION_DAY_START_HOUR = 5
 
 const SINGLE_SCREEN_METEOR_LIMIT = 8
 const SINGLE_SCREEN_CRUISE_LIMIT = 8
@@ -101,6 +102,16 @@ function getDateKey(date) {
   return `${year}-${month}-${day}`
 }
 
+function getOperationalDateKey(date) {
+  const operationalDate = new Date(date)
+
+  if (operationalDate.getHours() < NAVIGATION_DAY_START_HOUR) {
+    operationalDate.setDate(operationalDate.getDate() - 1)
+  }
+
+  return getDateKey(operationalDate)
+}
+
 function getAutoStatus(departure, now) {
   const diffMinutes = Math.round((departure.getTime() - now.getTime()) / 60000)
 
@@ -123,27 +134,17 @@ function getStatus(row, now) {
   return getAutoStatus(departure, now)
 }
 
-function getTimeLeftText(row) {
-  const now = new Date()
-
-  const diffMinutes = Math.round(
-    (row.departure.getTime() - now.getTime()) / 60000
-  )
+function getTimeLeftText(row, now) {
+  const diffMinutes = Math.round((row.departure.getTime() - now.getTime()) / 60000)
 
   if (diffMinutes > 60) {
     const hours = Math.floor(diffMinutes / 60)
     const minutes = diffMinutes % 60
-
     return `До отправления: ${hours} ч ${minutes} мин`
   }
 
-  if (diffMinutes > 0) {
-    return `До отправления: ${diffMinutes} мин`
-  }
-
-  if (diffMinutes > -15) {
-    return 'Рейс отправляется'
-  }
+  if (diffMinutes > 0) return `До отправления: ${diffMinutes} мин`
+  if (diffMinutes > -15) return 'Рейс отправляется'
 
   return 'Рейс отправлен'
 }
@@ -161,18 +162,19 @@ function shouldShowRow(row, now) {
 }
 
 function normalizeRows(rows, now) {
-  const today = getDateKey(now)
-  const activeRows = rows.filter((row) => row.pier_id === PIER_ID && shouldShowRow(row, now))
+  const currentOperationalDate = getOperationalDateKey(now)
 
-  let visibleRows = activeRows.filter((row) => row.date === today)
+  const activeRows = rows.filter((row) => {
+    if (row.pier_id !== PIER_ID) return false
+    if (!shouldShowRow(row, now)) return false
 
-  if (visibleRows.length === 0 && activeRows.length > 0) {
-    const futureDates = [...new Set(activeRows.map((row) => row.date))].sort()
-    const nextDate = futureDates.find((date) => date >= today) || futureDates[0]
-    visibleRows = activeRows.filter((row) => row.date === nextDate)
-  }
+    const departure = parseDepartureDateTime(row.date, row.time)
+    const rowOperationalDate = getOperationalDateKey(departure)
 
-  return visibleRows
+    return rowOperationalDate === currentOperationalDate
+  })
+
+  return activeRows
     .map((row) => ({
       ...row,
       departure: parseDepartureDateTime(row.date, row.time),
@@ -189,18 +191,60 @@ function groupRows(rows) {
 }
 
 function getHeroRows(rows) {
-  const priorityRows = rows.filter((row) => {
+  const heroAllowedRows = rows.filter((row) => {
+    return String(row.show_in_hero || '').trim().toUpperCase() !== 'FALSE'
+  })
+
+  const priorityRows = heroAllowedRows.filter((row) => {
     const status = row.status?.className
     return status === 'status-boarding' || status === 'status-last-call' || status === 'status-waiting'
   })
 
-  return (priorityRows.length ? priorityRows : rows).slice(0, 3)
+  return (priorityRows.length ? priorityRows : heroAllowedRows).slice(0, 3)
 }
 
-function getHeroImage(screenType, screenIndex, now) {
+function getHeroImageForRow(row, screenType, screenIndex, now) {
   const hour = now.getHours()
 
-  if (screenType === 'meteor') return heroImages.meteor
+  if (!row) {
+    if (hour >= 20 || hour < 6) return heroImages.night[screenIndex % heroImages.night.length]
+    return heroImages.day[screenIndex % heroImages.day.length]
+  }
+
+  const route = String(row.route || '').toLowerCase()
+  const ship = String(row.ship || '').toLowerCase()
+  const category = String(row.category || '').toLowerCase()
+
+  if (category === 'meteor' || screenType === 'meteor') {
+    return heroImages.meteor
+  }
+
+  if (
+    route.includes('мост') ||
+    route.includes('джаз') ||
+    route.includes('ноч') ||
+    ship.includes('астра')
+  ) {
+    return heroImages.night[screenIndex % heroImages.night.length]
+  }
+
+  if (
+    route.includes('финский') ||
+    route.includes('лахта') ||
+    route.includes('петергоф') ||
+    route.includes('парадный')
+  ) {
+    return heroImages.day[2]
+  }
+
+  if (
+    route.includes('северные') ||
+    route.includes('остров') ||
+    route.includes('реки') ||
+    route.includes('каналы')
+  ) {
+    return heroImages.day[screenIndex % heroImages.day.length]
+  }
 
   if (hour >= 20 || hour < 6) {
     return heroImages.night[screenIndex % heroImages.night.length]
@@ -221,7 +265,9 @@ function DepartureRow({ row }) {
 
       <div className="ship">{row.ship}</div>
 
-      <div className={`status ${row.status.className}`}>{row.status.label}</div>
+      <div className={`status ${row.status.className}`}>
+        {row.status.label}
+      </div>
     </div>
   )
 }
@@ -276,10 +322,13 @@ function Section({ title, rows }) {
   )
 }
 
-function HeroZone({ rows, title, now }) {
+function HeroZone({ rows, title, now, image, isLateMode }) {
   if (!rows.length) {
     return (
-      <section className="hero-zone">
+      <section
+        className={isLateMode ? 'hero-zone hero-zone-late' : 'hero-zone'}
+        style={{ backgroundImage: `url(${image})` }}
+      >
         <div className="hero-kicker">РАСПИСАНИЕ</div>
         <div className="hero-title">Рейсы на сегодня завершены</div>
         <div className="hero-subtitle">Расписание обновится автоматически</div>
@@ -290,7 +339,10 @@ function HeroZone({ rows, title, now }) {
   const main = rows[0]
 
   return (
-    <section className="hero-zone">
+    <section
+      className={isLateMode ? 'hero-zone hero-zone-late' : 'hero-zone'}
+      style={{ backgroundImage: `url(${image})` }}
+    >
       <div className="hero-kicker">{title}</div>
 
       <div className="hero-main-row">
@@ -306,11 +358,19 @@ function HeroZone({ rows, title, now }) {
       <div className="hero-countdown">
         {getTimeLeftText(main, now)}
       </div>
+
+      {isLateMode ? (
+        <div className="late-caption">
+          Ночной Петербург • Развод мостов • Атмосфера на воде
+        </div>
+      ) : null}
     </section>
   )
 }
 
 function ScreenDots({ activeIndex, count }) {
+  if (count <= 1) return null
+
   return (
     <div className="screen-dots">
       {Array.from({ length: count }).map((_, index) => (
@@ -346,14 +406,10 @@ function App() {
 
     const dataTimer = setInterval(loadRows, REFRESH_DATA_MS)
     const clockTimer = setInterval(() => setNow(new Date()), REFRESH_CLOCK_MS)
-    const screenTimer = setInterval(() => {
-      setScreenIndex((current) => (current + 1) % 3)
-    }, SCREEN_DURATION_MS)
 
     return () => {
       clearInterval(dataTimer)
       clearInterval(clockTimer)
-      clearInterval(screenTimer)
     }
   }, [])
 
@@ -366,49 +422,90 @@ function App() {
   const commonMeteorRows = groups.meteor.slice(0, COMMON_SCREEN_METEOR_LIMIT)
   const commonCruiseRows = groups.other.slice(0, COMMON_SCREEN_CRUISE_LIMIT)
 
-  const screens = [
-    {
-      type: 'meteor',
-      title: 'Метеоры',
-      heroTitle: 'Ближайшее отправление',
-      heroRows: getHeroRows(meteorRows),
-      content: <Section rows={meteorRows} />,
-    },
-    {
-      type: 'cruise',
-      title: 'Дневные и вечерние прогулки',
-      heroTitle: 'Ближайшее отправление',
-      heroRows: getHeroRows(cruiseRows),
-      content: <Section rows={cruiseRows} />,
-    },
-    {
-      type: 'common',
-      title: 'Общее расписание',
-      heroTitle: 'Ближайшее отправление',
-      heroRows: getHeroRows(visibleRows),
-      content: (
-        <>
-          <Section title="Метеоры" rows={commonMeteorRows} />
-          <Section title="Дневные и вечерние прогулки" rows={commonCruiseRows} />
-        </>
-      ),
-    },
-  ]
+  const screens = useMemo(() => {
+    const result = []
 
-  const activeScreen = screens[screenIndex]
-  const heroImage = getHeroImage(activeScreen.type, screenIndex, now)
+    if (meteorRows.length) {
+      result.push({
+        type: 'meteor',
+        title: 'Метеоры',
+        heroTitle: 'Ближайшее отправление',
+        heroRows: getHeroRows(meteorRows),
+        content: <Section rows={meteorRows} />,
+      })
+    }
+
+    if (cruiseRows.length) {
+      result.push({
+        type: 'cruise',
+        title: 'Дневные и вечерние прогулки',
+        heroTitle: 'Ближайшее отправление',
+        heroRows: getHeroRows(cruiseRows),
+        content: <Section rows={cruiseRows} />,
+      })
+    }
+
+    if (meteorRows.length && cruiseRows.length) {
+      result.push({
+        type: 'common',
+        title: 'Общее расписание',
+        heroTitle: 'Ближайшее отправление',
+        heroRows: getHeroRows(visibleRows),
+        content: (
+          <>
+            <Section title="Метеоры" rows={commonMeteorRows} />
+            <Section title="Дневные и вечерние прогулки" rows={commonCruiseRows} />
+          </>
+        ),
+      })
+    }
+
+    if (!result.length) {
+      result.push({
+        type: 'idle',
+        title: 'Расписание',
+        heroTitle: 'Расписание',
+        heroRows: [],
+        content: <IdlePanel />,
+      })
+    }
+
+    return result
+  }, [meteorRows, cruiseRows, commonMeteorRows, commonCruiseRows, visibleRows])
+
+  useEffect(() => {
+    setScreenIndex(0)
+  }, [screens.length])
+
+  useEffect(() => {
+    if (screens.length <= 1) return undefined
+
+    const screenTimer = setInterval(() => {
+      setScreenIndex((current) => (current + 1) % screens.length)
+    }, SCREEN_DURATION_MS)
+
+    return () => clearInterval(screenTimer)
+  }, [screens.length])
+
+  const activeScreen = screens[screenIndex] || screens[0]
+  const activeHeroRow = activeScreen.heroRows[0]
+  const heroImage = getHeroImageForRow(activeHeroRow, activeScreen.type, screenIndex, now)
+
+  const hour = now.getHours()
+  const isLateMode =
+    (hour >= 22 || hour < NAVIGATION_DAY_START_HOUR) &&
+    activeScreen.heroRows.length > 0 &&
+    visibleRows.length <= 2
 
   const pierName = visibleRows[0]?.pier_name || 'Спуск со львами'
-  const displayDate = visibleRows[0]?.date || getDateKey(now)
+  const displayDate = visibleRows[0]?.date || getOperationalDateKey(now)
 
   return (
-    <main className="board" style={{ backgroundImage: `url(${heroImage})` }}>
+    <main className={isLateMode ? 'board late-mode' : 'board'}>
       <div className="board-overlay" />
 
       <header className="header">
-        <div>
-          <h1>{pierName}</h1>
-        </div>
+        <h1>{pierName}</h1>
 
         <div className="meta">
           <div>{displayDate}</div>
@@ -428,7 +525,13 @@ function App() {
 
       {error ? <div className="error">{error}</div> : null}
 
-      <HeroZone rows={activeScreen.heroRows} title={activeScreen.heroTitle} now={now} />
+      <HeroZone
+        rows={activeScreen.heroRows}
+        title={activeScreen.heroTitle}
+        now={now}
+        image={heroImage}
+        isLateMode={isLateMode}
+      />
 
       <div className="schedule-area">
         {activeScreen.heroRows.length ? activeScreen.content : <IdlePanel />}

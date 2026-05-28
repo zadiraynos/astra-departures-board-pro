@@ -30,9 +30,10 @@ body {
 
   overflow: hidden;
 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background:
+    radial-gradient(circle at 76% 8%, rgba(55, 142, 232, 0.22), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(20, 80, 150, 0.18), transparent 34%),
+    linear-gradient(180deg, #07162d 0%, #061225 100%);
 }
 
 .board-overlay {
@@ -43,15 +44,9 @@ body {
   background:
     linear-gradient(
       180deg,
-      rgba(2, 8, 20, 0.66) 0%,
-      rgba(2, 8, 20, 0.56) 42%,
-      rgba(2, 8, 20, 0.88) 100%
-    ),
-    linear-gradient(
-      90deg,
-      rgba(2, 8, 20, 0.5) 0%,
-      rgba(2, 8, 20, 0.18) 55%,
-      rgba(2, 8, 20, 0.34) 100%
+      rgba(2, 8, 20, 0.08) 0%,
+      rgba(2, 8, 20, 0.18) 52%,
+      rgba(2, 8, 20, 0.48) 100%
     );
 }
 
@@ -92,6 +87,8 @@ h1 {
   line-height: 1.08;
 
   font-weight: 900;
+
+  color: rgba(255,255,255,0.92);
 }
 
 /* SCREEN TITLE */
@@ -120,7 +117,6 @@ h1 {
 .dot {
   width: 12px;
   height: 12px;
-
   border-radius: 999px;
 
   background: rgba(255,255,255,0.24);
@@ -138,29 +134,57 @@ h1 {
 /* HERO */
 
 .hero-zone {
+  position: relative;
+
   width: 100%;
+  min-height: 320px;
 
-  min-height: 280px;
+  padding: 34px 42px;
 
-  padding: 28px 34px;
-
-  border-radius: 30px;
+  border-radius: 34px;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(7,16,34,0.26),
-      rgba(7,16,34,0.08)
-    );
+  overflow: hidden;
 
-  border: 1px solid rgba(255,255,255,0.05);
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+
+  border: 1px solid rgba(255,255,255,0.08);
 
   box-shadow:
-    0 10px 34px rgba(0,0,0,0.16);
+    0 18px 60px rgba(0,0,0,0.28);
+}
+
+.hero-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 10, 24, 0.94) 0%,
+      rgba(3, 10, 24, 0.76) 38%,
+      rgba(3, 10, 24, 0.24) 72%,
+      rgba(3, 10, 24, 0.12) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(3, 10, 24, 0.06) 0%,
+      rgba(3, 10, 24, 0.42) 100%
+    );
+
+  pointer-events: none;
+}
+
+.hero-zone > * {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-kicker {
@@ -206,7 +230,7 @@ h1 {
 }
 
 .hero-title {
-  max-width: 95%;
+  max-width: 58%;
 
   font-size: clamp(44px, 4.4vw, 76px);
   line-height: 0.95;
@@ -248,19 +272,26 @@ h1 {
   color: white;
 }
 
+.late-caption {
+  margin-top: 26px;
+
+  font-size: clamp(20px, 1.7vw, 34px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  color: rgba(255,255,255,0.72);
+}
+
 /* TABLE */
 
 .schedule-area {
   flex: 1;
-
   min-height: 0;
-
   overflow: hidden;
 }
 
 .section {
   height: 100%;
-
   overflow: hidden;
 
   border-radius: 28px;
@@ -268,14 +299,18 @@ h1 {
   background:
     linear-gradient(
       180deg,
-      rgba(5,19,34,0.84),
-      rgba(5,18,32,0.72)
+      rgba(5,19,34,0.92),
+      rgba(5,18,32,0.84)
     );
 
   border: 1px solid rgba(255,255,255,0.12);
 
   box-shadow:
     0 16px 50px rgba(0,0,0,0.28);
+}
+
+.section + .section {
+  margin-top: 14px;
 }
 
 .section-title {
@@ -293,12 +328,11 @@ h1 {
 
 .table-head {
   display: grid;
-
   grid-template-columns:
     140px
     1fr
     180px
-    230px;
+    195px;
 
   gap: 16px;
 
@@ -316,12 +350,11 @@ h1 {
 
 .departure-row {
   display: grid;
-
   grid-template-columns:
     140px
     1fr
     180px
-    230px;
+    195px;
 
   gap: 16px;
 
@@ -382,14 +415,14 @@ h1 {
   align-items: center;
   justify-content: center;
 
-  padding: 10px 16px;
+  padding: 10px 12px;
 
   border-radius: 14px;
 
-  font-size: 16px;
+  font-size: 15px;
 
   font-weight: 900;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
 
   text-transform: uppercase;
 }
@@ -499,27 +532,28 @@ h1 {
   color: rgba(255,255,255,0.42);
 }
 
-/* SMALLER HEIGHT */
+/* LATE NIGHT MODE */
 
-@media (max-height: 900px) {
-  .hero-zone {
-    min-height: 230px;
-  }
+.late-mode .hero-zone {
+  min-height: 520px;
+}
 
-  .hero-time {
-    font-size: 86px;
-  }
+.late-mode .hero-time {
+  font-size: clamp(120px, 13vw, 230px);
+}
 
-  .hero-title {
-    font-size: 42px;
-  }
+.late-mode .hero-title {
+  max-width: 70%;
+  font-size: clamp(58px, 6vw, 108px);
+}
 
-  .departure-row {
-    min-height: 82px;
-  }
-  
-  @media (orientation: portrait) {
+.late-mode .schedule-area {
+  max-height: 32vh;
+}
 
+/* VERTICAL BIG SIGNAGE */
+
+@media (orientation: portrait) {
   .board {
     padding: 50px;
     gap: 28px;
@@ -541,15 +575,12 @@ h1 {
 
   .screen-dots {
     transform: scale(1.8);
+    transform-origin: right center;
   }
 
   .hero-zone {
-    width: 100%;
-    max-width: 100%;
     min-height: 560px;
-
     padding: 56px;
-
     border-radius: 42px;
   }
 
@@ -560,7 +591,6 @@ h1 {
 
   .hero-main-row {
     gap: 28px;
-    align-items: center;
   }
 
   .hero-time {
@@ -571,62 +601,32 @@ h1 {
 
   .hero-status {
     font-size: 38px;
-
     padding: 22px 36px;
-
     border-radius: 22px;
   }
 
   .hero-title {
     font-size: 118px;
-
     line-height: 0.9;
-
-    max-width: 1000px;
-
+    max-width: 72%;
     margin-top: 10px;
   }
 
   .hero-subtitle {
     font-size: 54px;
-
     margin-top: 18px;
   }
 
   .hero-countdown {
     font-size: 48px;
-
     margin-top: 28px;
-
     padding: 22px 32px;
-
     border-radius: 20px;
   }
 
-  .hero-secondary {
-    gap: 24px;
-
-    margin-top: 40px;
-  }
-
-  .hero-mini-card {
-    min-height: 160px;
-
-    padding: 28px;
-
-    border-radius: 26px;
-  }
-
-  .hero-mini-time {
-    font-size: 52px;
-  }
-
-  .hero-mini-route {
-    font-size: 36px;
-  }
-
-  .hero-mini-ship {
-    font-size: 28px;
+  .late-caption {
+    font-size: 40px;
+    margin-top: 34px;
   }
 
   .table-head,
@@ -635,18 +635,16 @@ h1 {
       190px
       1fr
       260px
-      340px;
+      290px;
   }
 
   .table-head {
     font-size: 30px;
-
     padding: 26px 30px;
   }
 
   .departure-row {
     min-height: 150px;
-
     padding: 24px 30px;
   }
 
@@ -656,7 +654,6 @@ h1 {
 
   .route-title {
     font-size: 52px;
-
     line-height: 0.95;
   }
 
@@ -665,15 +662,29 @@ h1 {
   }
 
   .status {
-    font-size: 34px;
-
-    min-height: 94px;
-
+    font-size: 30px;
+    min-height: 88px;
     border-radius: 22px;
   }
 
   .footer {
     font-size: 24px;
   }
-}
+
+  .late-mode .hero-zone {
+    min-height: 760px;
+  }
+
+  .late-mode .hero-time {
+    font-size: 360px;
+  }
+
+  .late-mode .hero-title {
+    font-size: 128px;
+    max-width: 78%;
+  }
+
+  .late-mode .schedule-area {
+    max-height: 24vh;
+  }
 }
