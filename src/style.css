@@ -329,12 +329,12 @@ h1 {
 .table-head {
   display: grid;
   grid-template-columns:
-    140px
-    1fr
     180px
-    195px;
+    1fr
+    170px
+    180px;
 
-  gap: 16px;
+  gap: 20px;
 
   padding: 12px 24px;
 
@@ -351,10 +351,10 @@ h1 {
 .departure-row {
   display: grid;
   grid-template-columns:
-    140px
-    1fr
     180px
-    195px;
+    1fr
+    170px
+    180px;
 
   gap: 16px;
 
@@ -377,6 +377,9 @@ h1 {
 
   font-weight: 900;
   letter-spacing: -0.06em;
+
+  padding-right: 22px;
+  border-right: 1px solid rgba(255,255,255,0.14);
 }
 
 .route-title {
@@ -632,10 +635,10 @@ h1 {
   .table-head,
   .departure-row {
     grid-template-columns:
-      190px
+      240px
       1fr
-      260px
-      290px;
+      230px
+      250px;
   }
 
   .table-head {
