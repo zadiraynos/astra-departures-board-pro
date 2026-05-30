@@ -13,9 +13,11 @@ import heroNight2 from './assets/hero-night-2.jpg'
 
 const PIER_ID = 'spusk_so_lvami'
 
-const REFRESH_DATA_MS = 60_000
+const REFRESH_DATA_MS = 10_000
 const REFRESH_CLOCK_MS = 15_000
 const SCREEN_DURATION_MS = 15_000
+const HERO_ROTATION_MS = 6_000
+const SCREEN_FADE_MS = 850
 const NAVIGATION_DAY_START_HOUR = 5
 
 const SINGLE_SCREEN_METEOR_LIMIT = 8
@@ -38,6 +40,67 @@ const manualStatusMap = {
   boarding: { label: 'ПОСАДКА', className: 'status-boarding' },
   last_call: { label: 'ПОСЛЕДНИЙ ВЫЗОВ', className: 'status-last-call' },
   departed: { label: 'ОТПРАВЛЕН', className: 'status-departed' },
+}
+
+const heroStatusPriority = {
+  'status-last-call': 0,
+  'status-boarding': 1,
+  'status-waiting': 2,
+}
+
+const manualStatusAliases = {
+  delay: ['delay', 'delayed', 'задержка', 'задерживается', 'рейсзадерживается'],
+  cancelled: ['cancelled', 'canceled', 'cancel', 'отменен', 'отмена', 'рейсотменен'],
+  boarding: ['boarding', 'посадка'],
+  last_call: ['lastcall', 'последнийвызов'],
+  departed: ['departed', 'отправлен', 'рейсотправлен'],
+}
+
+function normalizeStatusValue(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/^status[-_\s]*/, '')
+    .replace(/[^a-zа-я0-9]/g, '')
+}
+
+function getStatusKeyFromValue(value) {
+  const status = normalizeStatusValue(value)
+
+  if (!status) return ''
+
+  for (const [key, aliases] of Object.entries(manualStatusAliases)) {
+    if (status === key.replace('_', '') || aliases.includes(status)) return key
+  }
+
+  return ''
+}
+
+function getManualStatusKey(row) {
+  const values = [
+    row.manual_status,
+    row.manualStatus,
+    typeof row.status === 'string' ? row.status : null,
+    row.status?.className,
+    row.status?.label,
+  ]
+
+  Object.entries(row).forEach(([key, value]) => {
+    const normalizedKey = normalizeStatusValue(key)
+
+    if (normalizedKey.includes('status') || normalizedKey.includes('статус')) {
+      values.push(value)
+    }
+  })
+
+  for (const value of values) {
+    const key = getStatusKeyFromValue(value)
+
+    if (manualStatusMap[key]) return key
+  }
+
+  return ''
 }
 
 function parseCsvLine(line) {
@@ -124,7 +187,7 @@ function getAutoStatus(departure, now) {
 }
 
 function getStatus(row, now) {
-  const manual = String(row.manual_status || '').trim()
+  const manual = getManualStatusKey(row)
 
   if (manual && manualStatusMap[manual]) {
     return manualStatusMap[manual]
@@ -135,6 +198,12 @@ function getStatus(row, now) {
 }
 
 function getTimeLeftText(row, now) {
+  const manual = getManualStatusKey(row)
+
+  if (manual === 'delay') return 'Рейс задерживается'
+  if (manual === 'cancelled') return 'Рейс отменён'
+  if (manual === 'departed') return 'Рейс отправлен'
+
   const diffMinutes = Math.round((row.departure.getTime() - now.getTime()) / 60000)
 
   if (diffMinutes > 60) {
@@ -154,7 +223,7 @@ function shouldShowRow(row, now) {
 
   const departure = parseDepartureDateTime(row.date, row.time)
   const minutesAfterDeparture = (now.getTime() - departure.getTime()) / 60000
-  const manual = String(row.manual_status || '').trim()
+  const manual = getManualStatusKey(row)
 
   if (manual === 'delay' || manual === 'cancelled') return true
 
@@ -190,17 +259,23 @@ function groupRows(rows) {
   }
 }
 
+function shouldShowInHero(row) {
+  return String(row.show_in_hero || '').trim().toUpperCase() !== 'FALSE'
+}
+
 function getHeroRows(rows) {
-  const heroAllowedRows = rows.filter((row) => {
-    return String(row.show_in_hero || '').trim().toUpperCase() !== 'FALSE'
-  })
+  const heroAllowedRows = rows.filter(shouldShowInHero)
 
-  const priorityRows = heroAllowedRows.filter((row) => {
-    const status = row.status?.className
-    return status === 'status-boarding' || status === 'status-last-call' || status === 'status-waiting'
-  })
+  return [...heroAllowedRows]
+    .sort((a, b) => {
+      const aPriority = heroStatusPriority[a.status?.className] ?? 3
+      const bPriority = heroStatusPriority[b.status?.className] ?? 3
 
-  return (priorityRows.length ? priorityRows : heroAllowedRows).slice(0, 3)
+      if (aPriority !== bPriority) return aPriority - bPriority
+
+      return a.departure - b.departure
+    })
+    .slice(0, 3)
 }
 
 function getHeroImageForRow(row, screenType, screenIndex, now) {
@@ -322,12 +397,18 @@ function Section({ title, rows }) {
   )
 }
 
-function HeroZone({ rows, title, now, image, isLateMode }) {
+function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhotoZoom }) {
   if (!rows.length) {
     return (
       <section
-        className={isLateMode ? 'hero-zone hero-zone-late' : 'hero-zone'}
-        style={{ backgroundImage: `url(${image})` }}
+        className={
+          [
+            'hero-zone',
+            isLateMode ? 'hero-zone-late' : '',
+            enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
+          ].filter(Boolean).join(' ')
+        }
+        style={{ '--hero-image': `url(${image})` }}
       >
         <div className="hero-kicker">РАСПИСАНИЕ</div>
         <div className="hero-title">Рейсы на сегодня завершены</div>
@@ -336,12 +417,19 @@ function HeroZone({ rows, title, now, image, isLateMode }) {
     )
   }
 
-  const main = rows[0]
+  const heroRows = rows.slice(0, 3)
+  const main = heroRows[activeIndex % heroRows.length] || heroRows[0]
 
   return (
     <section
-      className={isLateMode ? 'hero-zone hero-zone-late' : 'hero-zone'}
-      style={{ backgroundImage: `url(${image})` }}
+      className={
+        [
+          'hero-zone',
+          isLateMode ? 'hero-zone-late' : '',
+          enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
+        ].filter(Boolean).join(' ')
+      }
+      style={{ '--hero-image': `url(${image})` }}
     >
       <div className="hero-kicker">{title}</div>
 
@@ -368,6 +456,37 @@ function HeroZone({ rows, title, now, image, isLateMode }) {
   )
 }
 
+function CommonHeroCard({ label, row, image }) {
+  if (!row) return null
+
+  return (
+    <article
+      className="common-hero-card"
+      style={{ backgroundImage: `url(${image})` }}
+    >
+      <div className="common-hero-card-top">
+        <div className="common-hero-label">{label}</div>
+        <div className={`common-hero-status ${row.status.className}`}>
+          {row.status.label}
+        </div>
+      </div>
+
+      <div className="common-hero-time">{row.time}</div>
+      <div className="common-hero-route">{row.route}</div>
+      <div className="common-hero-ship">{row.ship}</div>
+    </article>
+  )
+}
+
+function CommonHeroZone({ meteorRow, cruiseRow, meteorImage, cruiseImage }) {
+  return (
+    <section className="common-hero-grid">
+      <CommonHeroCard label="Метеоры" row={meteorRow} image={meteorImage} />
+      <CommonHeroCard label="Водные прогулки" row={cruiseRow} image={cruiseImage} />
+    </section>
+  )
+}
+
 function ScreenDots({ activeIndex, count }) {
   if (count <= 1) return null
 
@@ -385,11 +504,15 @@ function App() {
   const [now, setNow] = useState(new Date())
   const [error, setError] = useState('')
   const [screenIndex, setScreenIndex] = useState(0)
+  const [heroRotationIndex, setHeroRotationIndex] = useState(0)
+  const [isScreenFading, setIsScreenFading] = useState(false)
 
   async function loadRows() {
     try {
       const separator = GOOGLE_SHEETS_CSV_URL.includes('?') ? '&' : '?'
-      const response = await fetch(`${GOOGLE_SHEETS_CSV_URL}${separator}cacheBust=${Date.now()}`)
+      const response = await fetch(`${GOOGLE_SHEETS_CSV_URL}${separator}cacheBust=${Date.now()}`, {
+        cache: 'no-store',
+      })
 
       if (!response.ok) throw new Error('Не удалось загрузить Google Sheets')
 
@@ -446,11 +569,22 @@ function App() {
     }
 
     if (meteorRows.length && cruiseRows.length) {
+      const commonMeteorHeroRows = getHeroRows(meteorRows)
+      const commonCruiseHeroRows = getHeroRows(cruiseRows)
+
       result.push({
         type: 'common',
         title: 'Общее расписание',
         heroTitle: 'Ближайшее отправление',
         heroRows: getHeroRows(visibleRows),
+        splitHeroRows: {
+          meteor: commonMeteorHeroRows[0],
+          cruise: commonCruiseHeroRows[0],
+        },
+        scheduleRows: {
+          meteor: commonMeteorRows.length,
+          cruise: commonCruiseRows.length,
+        },
         content: (
           <>
             <Section title="Метеоры" rows={commonMeteorRows} />
@@ -475,33 +609,80 @@ function App() {
 
   useEffect(() => {
     setScreenIndex(0)
+    setHeroRotationIndex(0)
+    setIsScreenFading(false)
   }, [screens.length])
 
   useEffect(() => {
-    if (screens.length <= 1) return undefined
+    if (screens.length <= 1) {
+      setIsScreenFading(false)
+      return undefined
+    }
+
+    let fadeTimer
 
     const screenTimer = setInterval(() => {
-      setScreenIndex((current) => (current + 1) % screens.length)
+      setIsScreenFading(true)
+
+      fadeTimer = window.setTimeout(() => {
+        setHeroRotationIndex(0)
+        setScreenIndex((current) => (current + 1) % screens.length)
+        setIsScreenFading(false)
+      }, SCREEN_FADE_MS)
     }, SCREEN_DURATION_MS)
 
-    return () => clearInterval(screenTimer)
+    return () => {
+      clearInterval(screenTimer)
+      window.clearTimeout(fadeTimer)
+    }
   }, [screens.length])
 
   const activeScreen = screens[screenIndex] || screens[0]
-  const activeHeroRow = activeScreen.heroRows[0]
+  const heroRotationLimit = Math.min(activeScreen.heroRows.length, 3)
+  const activeHeroIndex = heroRotationLimit > 0 ? heroRotationIndex % heroRotationLimit : 0
+  const activeHeroRow = activeScreen.heroRows[activeHeroIndex]
   const heroImage = getHeroImageForRow(activeHeroRow, activeScreen.type, screenIndex, now)
+  const commonScheduleStyle =
+    activeScreen.type === 'common'
+      ? {
+          gridTemplateRows: `minmax(0, ${Math.min(4, Math.max(1, activeScreen.scheduleRows?.meteor || 1))}fr) minmax(0, ${Math.min(4, Math.max(1, activeScreen.scheduleRows?.cruise || 1))}fr)`,
+        }
+      : undefined
+
+  useEffect(() => {
+    setHeroRotationIndex(0)
+  }, [screenIndex])
+
+  useEffect(() => {
+    if (heroRotationLimit <= 1) {
+      setHeroRotationIndex(0)
+      return undefined
+    }
+
+    const heroTimer = setInterval(() => {
+      setHeroRotationIndex((current) => (current + 1) % heroRotationLimit)
+    }, HERO_ROTATION_MS)
+
+    return () => clearInterval(heroTimer)
+  }, [heroRotationLimit, screenIndex])
 
   const hour = now.getHours()
   const isLateMode =
     (hour >= 22 || hour < NAVIGATION_DAY_START_HOUR) &&
     activeScreen.heroRows.length > 0 &&
     visibleRows.length <= 2
+  const isLowDensityMode = visibleRows.length > 0 && visibleRows.length <= 3
+  const boardClassName = [
+    'board',
+    isLateMode ? 'late-mode' : '',
+    isLowDensityMode ? 'low-density' : '',
+  ].filter(Boolean).join(' ')
 
   const pierName = visibleRows[0]?.pier_name || 'Спуск со львами'
   const displayDate = visibleRows[0]?.date || getOperationalDateKey(now)
 
   return (
-    <main className={isLateMode ? 'board late-mode' : 'board'}>
+    <main className={boardClassName}>
       <div className="board-overlay" />
 
       <header className="header">
@@ -518,23 +699,39 @@ function App() {
         </div>
       </header>
 
-      <div className="screen-title-row">
-        <div className="screen-title">{activeScreen.title}</div>
-        <ScreenDots activeIndex={screenIndex} count={screens.length} />
-      </div>
+      <div className={isScreenFading ? 'screen-content screen-content-fading' : 'screen-content'}>
+        <div className="screen-title-row">
+          <div className="screen-title">{activeScreen.title}</div>
+          <ScreenDots activeIndex={screenIndex} count={screens.length} />
+        </div>
 
-      {error ? <div className="error">{error}</div> : null}
+        {error ? <div className="error">{error}</div> : null}
 
-      <HeroZone
-        rows={activeScreen.heroRows}
-        title={activeScreen.heroTitle}
-        now={now}
-        image={heroImage}
-        isLateMode={isLateMode}
-      />
+        {activeScreen.type === 'common' ? (
+          <CommonHeroZone
+            meteorRow={activeScreen.splitHeroRows?.meteor}
+            cruiseRow={activeScreen.splitHeroRows?.cruise}
+            meteorImage={getHeroImageForRow(activeScreen.splitHeroRows?.meteor, 'meteor', screenIndex, now)}
+            cruiseImage={getHeroImageForRow(activeScreen.splitHeroRows?.cruise, 'cruise', screenIndex, now)}
+          />
+        ) : (
+          <HeroZone
+            rows={activeScreen.heroRows}
+            title={activeScreen.heroTitle}
+            now={now}
+            image={heroImage}
+            isLateMode={isLateMode}
+            activeIndex={activeHeroIndex}
+            enablePhotoZoom={activeScreen.heroRows.length === 1}
+          />
+        )}
 
-      <div className="schedule-area">
-        {activeScreen.heroRows.length ? activeScreen.content : <IdlePanel />}
+        <div
+          className={activeScreen.type === 'common' ? 'schedule-area common-schedule' : 'schedule-area'}
+          style={commonScheduleStyle}
+        >
+          {activeScreen.content}
+        </div>
       </div>
 
       <footer className="footer">Информация обновляется автоматически</footer>
