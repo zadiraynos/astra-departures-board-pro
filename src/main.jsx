@@ -218,6 +218,10 @@ function getTimeLeftText(row, now) {
   return 'Рейс отправлен'
 }
 
+function getCategoryKey(row) {
+  return String(row.category || '').trim().toLowerCase()
+}
+
 function shouldShowRow(row, now) {
   if (row.is_active === false || String(row.is_active).toUpperCase() === 'FALSE') return false
 
@@ -254,8 +258,8 @@ function normalizeRows(rows, now) {
 
 function groupRows(rows) {
   return {
-    meteor: rows.filter((row) => row.category === 'meteor'),
-    other: rows.filter((row) => row.category !== 'meteor'),
+    meteor: rows.filter((row) => getCategoryKey(row) === 'meteor'),
+    other: rows.filter((row) => getCategoryKey(row) !== 'meteor'),
   }
 }
 
@@ -328,13 +332,23 @@ function getHeroImageForRow(row, screenType, screenIndex, now) {
   return heroImages.day[screenIndex % heroImages.day.length]
 }
 
+function getScheduleRouteTitle(route) {
+  const normalizedRoute = String(route || '').trim().toLowerCase()
+
+  if (normalizedRoute.includes('парадный петербург') && normalizedRoute.includes('финский залив')) {
+    return 'Парадный Петербург'
+  }
+
+  return route
+}
+
 function DepartureRow({ row }) {
   return (
     <div className="departure-row">
       <div className="time">{row.time}</div>
 
       <div className="route">
-        <div className="route-title">{row.route}</div>
+        <div className="route-title">{getScheduleRouteTitle(row.route)}</div>
         {row.note ? <div className="note">{row.note}</div> : null}
       </div>
 
@@ -386,9 +400,9 @@ function Section({ title, rows }) {
       </div>
 
       <div className="rows">
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <DepartureRow
-            key={`${row.date}-${row.time}-${row.route}-${row.ship}`}
+            key={row.id || `${row.date}-${row.time}-${row.route}-${row.ship}-${index}`}
             row={row}
           />
         ))}
@@ -588,7 +602,7 @@ function App() {
         content: (
           <>
             <Section title="Метеоры" rows={commonMeteorRows} />
-            <Section title="Дневные и вечерние прогулки" rows={commonCruiseRows} />
+            <Section title="Водные прогулки" rows={commonCruiseRows} />
           </>
         ),
       })
@@ -645,7 +659,7 @@ function App() {
   const commonScheduleStyle =
     activeScreen.type === 'common'
       ? {
-          gridTemplateRows: `minmax(0, ${Math.min(4, Math.max(1, activeScreen.scheduleRows?.meteor || 1))}fr) minmax(0, ${Math.min(4, Math.max(1, activeScreen.scheduleRows?.cruise || 1))}fr)`,
+          gridTemplateRows: 'max-content max-content',
         }
       : undefined
 

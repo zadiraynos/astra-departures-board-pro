@@ -283,6 +283,7 @@ h1 {
 .hero-title {
   max-width: 72%;
   overflow: hidden;
+  text-overflow: ellipsis;
 
   font-size: clamp(38px, 4vw, 66px);
   line-height: 0.98;
@@ -438,13 +439,18 @@ h1 {
 .common-hero-route {
   margin-top: 18px;
 
-  max-width: 82%;
+  max-width: 92%;
+  overflow: hidden;
 
   font-size: clamp(28px, 2.8vw, 44px);
   line-height: 0.98;
 
   font-weight: 900;
   text-transform: uppercase;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .common-hero-ship {
@@ -622,11 +628,16 @@ h1 {
 .route-title {
   font-size: clamp(28px, 2vw, 42px);
   line-height: 1.02;
+  overflow: hidden;
 
   font-weight: 900;
   letter-spacing: -0.04em;
 
   text-transform: uppercase;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .note {
@@ -857,51 +868,52 @@ h1 {
   }
 
   .hero-zone {
-    height: 880px;
-    min-height: 880px;
-    max-height: 880px;
-    padding: 56px;
+    height: 760px;
+    min-height: 760px;
+    max-height: 760px;
+    padding: 48px 56px;
     border-radius: 42px;
   }
 
   .hero-kicker {
-    font-size: 34px;
-    margin-bottom: 30px;
+    font-size: 28px;
+    margin-bottom: 18px;
   }
 
   .hero-main-row {
-    gap: 34px;
-    margin-bottom: 34px;
+    gap: 26px;
+    margin-bottom: 20px;
   }
 
   .hero-time {
-    font-size: 320px;
-    line-height: 0.82;
-    letter-spacing: -10px;
+    font-size: 190px;
+    line-height: 0.86;
+    letter-spacing: -5px;
   }
 
   .hero-status {
-    font-size: 38px;
-    padding: 22px 36px;
+    font-size: 30px;
+    padding: 18px 28px;
     border-radius: 22px;
   }
 
   .hero-title {
-    font-size: 118px;
-    line-height: 0.9;
-    max-width: 72%;
+    font-size: clamp(48px, 6.2vw, 72px);
+    line-height: 1;
+    max-width: 88%;
     -webkit-line-clamp: 3;
   }
 
   .hero-subtitle {
-    font-size: 54px;
-    margin-top: 26px;
+    font-size: 36px;
+    line-height: 1.12;
+    margin-top: 14px;
   }
 
   .hero-countdown {
-    font-size: 48px;
-    margin-top: 38px;
-    padding: 22px 32px;
+    font-size: 32px;
+    margin-top: 18px;
+    padding: 16px 24px;
     border-radius: 20px;
   }
 
@@ -910,8 +922,8 @@ h1 {
   }
 
   .common-hero-card {
-    height: clamp(340px, 24vh, 430px);
-    padding: 38px;
+    height: clamp(460px, 32vh, 580px);
+    padding: 34px;
     border-radius: 36px;
   }
 
@@ -926,18 +938,24 @@ h1 {
   }
 
   .common-hero-time {
-    font-size: 168px;
-    line-height: 0.82;
-    letter-spacing: -6px;
+    font-size: 118px;
+    line-height: 0.86;
+    letter-spacing: -4px;
   }
 
   .common-hero-route {
-    font-size: 54px;
-    line-height: 0.94;
+    margin-top: 22px;
+    max-width: 96%;
+
+    font-size: 38px;
+    line-height: 1.05;
+    -webkit-line-clamp: 3;
   }
 
   .common-hero-ship {
-    font-size: 38px;
+    margin-top: 14px;
+
+    font-size: 30px;
     line-height: 1.15;
   }
 
@@ -958,7 +976,7 @@ h1 {
       240px
       1fr
       230px
-      250px;
+      190px;
   }
 
   .table-head {
@@ -967,8 +985,18 @@ h1 {
   }
 
   .departure-row {
-    min-height: 150px;
+    height: 170px;
+    min-height: 170px;
+    overflow: hidden;
     padding: 24px 30px;
+  }
+
+  .schedule-area:not(.common-schedule) .departure-row:nth-child(n + 5) {
+    display: none;
+  }
+
+  .common-schedule .departure-row:nth-child(n + 4) {
+    display: none;
   }
 
   .time {
@@ -976,8 +1004,9 @@ h1 {
   }
 
   .route-title {
-    font-size: 52px;
-    line-height: 0.95;
+    font-size: 42px;
+    line-height: 1.02;
+    -webkit-line-clamp: 2;
   }
 
   .ship {
@@ -985,9 +1014,10 @@ h1 {
   }
 
   .status {
-    font-size: 30px;
-    min-height: 88px;
-    border-radius: 22px;
+    font-size: 20px;
+    min-height: 74px;
+    padding: 8px 10px;
+    border-radius: 18px;
   }
 
   .footer {
@@ -995,18 +1025,18 @@ h1 {
   }
 
   .late-mode .hero-zone {
-    height: 960px;
-    min-height: 960px;
-    max-height: 960px;
+    height: 880px;
+    min-height: 880px;
+    max-height: 880px;
   }
 
   .late-mode .hero-time {
-    font-size: 360px;
+    font-size: 230px;
   }
 
   .late-mode .hero-title {
-    font-size: 128px;
-    max-width: 78%;
+    font-size: 84px;
+    max-width: 88%;
   }
 
   .late-mode .schedule-area {
@@ -1018,15 +1048,15 @@ h1 {
   }
 
   .low-density .hero-zone {
-    height: 1040px;
-    min-height: 1040px;
-    max-height: 1040px;
-    padding-top: 72px;
-    padding-bottom: 72px;
+    height: 820px;
+    min-height: 820px;
+    max-height: 820px;
+    padding-top: 56px;
+    padding-bottom: 56px;
   }
 
   .low-density .common-hero-card {
-    height: clamp(420px, 28vh, 520px);
+    height: clamp(480px, 34vh, 620px);
   }
 
   .low-density .schedule-area {
