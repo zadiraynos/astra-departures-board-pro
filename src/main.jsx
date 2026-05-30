@@ -424,9 +424,11 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
         }
         style={{ '--hero-image': `url(${image})` }}
       >
-        <div className="hero-kicker">РАСПИСАНИЕ</div>
-        <div className="hero-title">Рейсы на сегодня завершены</div>
-        <div className="hero-subtitle">Расписание обновится автоматически</div>
+        <div className="hero-content">
+          <div className="hero-kicker">РАСПИСАНИЕ</div>
+          <div className="hero-title">Рейсы на сегодня завершены</div>
+          <div className="hero-subtitle">Расписание обновится автоматически</div>
+        </div>
       </section>
     )
   }
@@ -445,27 +447,29 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
       }
       style={{ '--hero-image': `url(${image})` }}
     >
-      <div className="hero-kicker">{title}</div>
+      <div className="hero-content">
+        <div className="hero-kicker">{title}</div>
 
-      <div className="hero-main-row">
-        <div className="hero-time">{main.time}</div>
-        <div className={`hero-status ${main.status.className}`}>
-          {main.status.label}
+        <div className="hero-main-row">
+          <div className="hero-time">{main.time}</div>
+          <div className={`hero-status ${main.status.className}`}>
+            {main.status.label}
+          </div>
         </div>
-      </div>
 
-      <div className="hero-title">{main.route}</div>
-      <div className="hero-subtitle">{main.ship}</div>
+        <div className="hero-title">{main.route}</div>
+        <div className="hero-subtitle">{main.ship}</div>
 
-      <div className="hero-countdown">
-        {getTimeLeftText(main, now)}
-      </div>
-
-      {isLateMode ? (
-        <div className="late-caption">
-          Ночной Петербург • Развод мостов • Атмосфера на воде
+        <div className="hero-countdown">
+          {getTimeLeftText(main, now)}
         </div>
-      ) : null}
+
+        {isLateMode ? (
+          <div className="late-caption">
+            Ночной Петербург • Развод мостов • Атмосфера на воде
+          </div>
+        ) : null}
+      </div>
     </section>
   )
 }
