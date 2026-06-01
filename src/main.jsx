@@ -10,6 +10,11 @@ import heroDay4 from './assets/hero-day-4.jpg'
 import heroDay5 from './assets/hero-day-5.jpg'
 import heroNight1 from './assets/hero-night-1.jpg'
 import heroNight2 from './assets/hero-night-2.jpg'
+import promoMeteor from './assets/promos/promo-meteor.jpg'
+import promoParties from './assets/promos/promo-parties.jpg'
+import promoPeterhofRestaurant from './assets/promos/promo-petergof-restaurant.jpg'
+import promoBridges from './assets/promos/promo-bridges.jpg'
+import promoFamily from './assets/promos/promo-family.jpg'
 
 const PIER_ID = 'spusk_so_lvami'
 
@@ -17,6 +22,7 @@ const REFRESH_DATA_MS = 10_000
 const REFRESH_CLOCK_MS = 15_000
 const SCREEN_DURATION_MS = 15_000
 const HERO_ROTATION_MS = 6_000
+const PROMO_ROTATION_MS = 8_000
 const SCREEN_FADE_MS = 850
 const NAVIGATION_DAY_START_HOUR = 5
 
@@ -33,6 +39,39 @@ const heroImages = {
   day: [heroDay1, heroDay2, heroDay3, heroDay4, heroDay5],
   night: [heroNight1, heroNight2],
 }
+
+const promoBanners = [
+  {
+    image: promoMeteor,
+    position: 'center top',
+    title: 'Метеоры в Петергоф',
+    subtitle: 'Быстрый маршрут по воде без городских пробок',
+  },
+  {
+    image: promoParties,
+    position: 'center center',
+    title: 'Праздники на воде',
+    subtitle: 'Вечеринки, выпускные и частные события на теплоходе',
+  },
+  {
+    image: promoPeterhofRestaurant,
+    position: 'center center',
+    title: 'Петергоф с рестораном',
+    subtitle: 'Прогулка на метеоре и гастрономический день у залива',
+  },
+  {
+    image: promoBridges,
+    position: 'center center',
+    title: 'Разводные мосты',
+    subtitle: 'Ночной Петербург с лучшего ракурса',
+  },
+  {
+    image: promoFamily,
+    position: 'center top',
+    title: 'Семейные прогулки',
+    subtitle: 'Спокойный маршрут для детей и взрослых',
+  },
+]
 
 const manualStatusMap = {
   delay: { label: 'ЗАДЕРЖКА', className: 'status-delay' },
@@ -267,6 +306,18 @@ function shouldShowInHero(row) {
   return String(row.show_in_hero || '').trim().toUpperCase() !== 'FALSE'
 }
 
+function isSameDeparture(a, b) {
+  if (!a || !b) return false
+  if (a.id && b.id) return a.id === b.id
+
+  return (
+    a.date === b.date &&
+    a.time === b.time &&
+    a.route === b.route &&
+    a.ship === b.ship
+  )
+}
+
 function getHeroRows(rows) {
   const heroAllowedRows = rows.filter(shouldShowInHero)
 
@@ -361,27 +412,55 @@ function DepartureRow({ row }) {
   )
 }
 
-function IdlePanel() {
+function PromotionBanner({ banner }) {
   return (
-    <div className="idle-panel">
-      <div className="idle-card">
-        <div className="idle-label">Билеты онлайн</div>
-        <div className="idle-value">astra-marine.ru</div>
-        <div className="idle-sub">Проверьте расписание и купите билет на сайте</div>
+    <article
+      className="promotion-banner"
+      style={{
+        backgroundImage: `url(${banner.image})`,
+        backgroundPosition: banner.position || 'center center',
+      }}
+    >
+      <div className="promotion-badge">Рекомендуем</div>
+      <div className="promotion-content">
+        <div className="promotion-label">Astra Marine</div>
+        <div className="promotion-title">{banner.title}</div>
+        <div className="promotion-subtitle">{banner.subtitle}</div>
       </div>
+    </article>
+  )
+}
 
-      <div className="idle-card">
-        <div className="idle-label">Погода сейчас</div>
-        <div className="idle-value">+16°</div>
-        <div className="idle-sub">Следите за объявлениями на причале</div>
-      </div>
+function IdlePanel({ promo }) {
+  return (
+    <div className="promotion-idle">
+      <PromotionBanner banner={promo} />
 
-      <div className="idle-card">
-        <div className="idle-label">Телефон</div>
-        <div className="idle-value">+7 (812) 426-17-17</div>
-        <div className="idle-sub">Служба заботы о пассажирах</div>
+      <div className="promotion-contact">
+        <div>
+          <div className="promotion-contact-label">Билеты онлайн</div>
+          <div className="promotion-contact-value">astra-marine.ru</div>
+        </div>
+
+        <div>
+          <div className="promotion-contact-label">Единый телефон</div>
+          <div className="promotion-contact-value">+7 (812) 426-17-17</div>
+        </div>
+
+        <div className="promotion-contact-note">
+          Следите за расписанием на сайте
+        </div>
       </div>
     </div>
+  )
+}
+
+function PromotionSchedule({ rows, promo }) {
+  return (
+    <>
+      {rows.length ? <Section rows={rows} /> : null}
+      <PromotionBanner banner={promo} />
+    </>
   )
 }
 
@@ -523,6 +602,7 @@ function App() {
   const [error, setError] = useState('')
   const [screenIndex, setScreenIndex] = useState(0)
   const [heroRotationIndex, setHeroRotationIndex] = useState(0)
+  const [promoIndex, setPromoIndex] = useState(0)
   const [isScreenFading, setIsScreenFading] = useState(false)
 
   async function loadRows() {
@@ -547,10 +627,14 @@ function App() {
 
     const dataTimer = setInterval(loadRows, REFRESH_DATA_MS)
     const clockTimer = setInterval(() => setNow(new Date()), REFRESH_CLOCK_MS)
+    const promoTimer = setInterval(() => {
+      setPromoIndex((current) => (current + 1) % promoBanners.length)
+    }, PROMO_ROTATION_MS)
 
     return () => {
       clearInterval(dataTimer)
       clearInterval(clockTimer)
+      clearInterval(promoTimer)
     }
   }, [])
 
@@ -572,6 +656,7 @@ function App() {
         title: 'Метеоры',
         heroTitle: 'Ближайшее отправление',
         heroRows: getHeroRows(meteorRows),
+        rows: meteorRows,
         content: <Section rows={meteorRows} />,
       })
     }
@@ -582,6 +667,7 @@ function App() {
         title: 'Дневные и вечерние прогулки',
         heroTitle: 'Ближайшее отправление',
         heroRows: getHeroRows(cruiseRows),
+        rows: cruiseRows,
         content: <Section rows={cruiseRows} />,
       })
     }
@@ -595,6 +681,7 @@ function App() {
         title: 'Общее расписание',
         heroTitle: 'Ближайшее отправление',
         heroRows: getHeroRows(visibleRows),
+        rows: visibleRows,
         splitHeroRows: {
           meteor: commonMeteorHeroRows[0],
           cruise: commonCruiseHeroRows[0],
@@ -659,7 +746,9 @@ function App() {
   const heroRotationLimit = Math.min(activeScreen.heroRows.length, 3)
   const activeHeroIndex = heroRotationLimit > 0 ? heroRotationIndex % heroRotationLimit : 0
   const activeHeroRow = activeScreen.heroRows[activeHeroIndex]
+  const primaryHeroRow = activeScreen.heroRows[0]
   const heroImage = getHeroImageForRow(activeHeroRow, activeScreen.type, screenIndex, now)
+  const activePromo = promoBanners[promoIndex % promoBanners.length]
   const commonScheduleStyle =
     activeScreen.type === 'common'
       ? {
@@ -690,10 +779,18 @@ function App() {
     activeScreen.heroRows.length > 0 &&
     visibleRows.length <= 2
   const isLowDensityMode = visibleRows.length > 0 && visibleRows.length <= 3
+  const isPromotionMode =
+    isLowDensityMode &&
+    activeScreen.type !== 'common' &&
+    activeScreen.type !== 'idle'
+  const promotionRows = isPromotionMode
+    ? (activeScreen.rows || []).filter((row) => !isSameDeparture(row, primaryHeroRow))
+    : []
   const boardClassName = [
     'board',
     isLateMode ? 'late-mode' : '',
     isLowDensityMode ? 'low-density' : '',
+    isPromotionMode ? 'promotion-mode' : '',
   ].filter(Boolean).join(' ')
 
   const pierName = visibleRows[0]?.pier_name || 'Спуск со львами'
@@ -745,10 +842,25 @@ function App() {
         )}
 
         <div
-          className={activeScreen.type === 'common' ? 'schedule-area common-schedule' : 'schedule-area'}
+          className={
+            [
+              'schedule-area',
+              activeScreen.type === 'common' ? 'common-schedule' : '',
+              activeScreen.type === 'idle' ? 'promotion-idle-area' : '',
+              isPromotionMode ? 'promotion-schedule' : '',
+              isPromotionMode && !promotionRows.length ? 'promotion-schedule-empty' : '',
+              isPromotionMode && promotionRows.length === 1 ? 'promotion-schedule-single' : '',
+            ].filter(Boolean).join(' ')
+          }
           style={commonScheduleStyle}
         >
-          {activeScreen.content}
+          {activeScreen.type === 'idle' ? (
+            <IdlePanel promo={activePromo} />
+          ) : isPromotionMode ? (
+            <PromotionSchedule rows={promotionRows} promo={activePromo} />
+          ) : (
+            activeScreen.content
+          )}
         </div>
       </div>
 

@@ -723,32 +723,115 @@ h1 {
 
 /* IDLE */
 
-.idle-panel {
+.promotion-schedule {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 18px;
 }
 
-.idle-card {
-  min-height: 150px;
+.promotion-schedule .promotion-banner {
+  grid-column: 2;
+  grid-row: 1;
+  height: 100%;
+}
 
-  padding: 24px;
+.promotion-schedule .section {
+  grid-column: 1;
+  grid-row: 1;
+  height: auto;
+  min-height: 0;
+  align-self: start;
+}
+
+.promotion-schedule-empty {
+  grid-template-columns: 1fr;
+}
+
+.promotion-schedule-empty .promotion-banner {
+  grid-column: 1;
+}
+
+.promotion-schedule-single {
+  grid-template-columns: minmax(0, 0.62fr) minmax(440px, 1fr);
+}
+
+.promotion-schedule-single .section {
+  height: max-content;
+}
+
+.promotion-schedule-single .rows {
+  overflow: hidden;
+}
+
+.promotion-schedule-single .promotion-banner {
+  min-height: 300px;
+}
+
+.promotion-idle-area {
+  max-height: none;
+}
+
+.promotion-idle {
+  height: 100%;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.42fr);
+  gap: 18px;
+}
+
+.promotion-banner {
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
 
   border-radius: 28px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(7,16,34,0.16),
-      rgba(7,16,34,0.08)
-    );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 
-  border: 1px solid rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 16px 50px rgba(0,0,0,0.28);
 }
 
-.idle-label {
-  margin-bottom: 12px;
+.promotion-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
 
-  font-size: 16px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 10, 24, 0.56) 0%,
+      rgba(3, 10, 24, 0.28) 54%,
+      rgba(3, 10, 24, 0.08) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(3, 10, 24, 0.02) 0%,
+      rgba(3, 10, 24, 0.48) 100%
+    );
+}
+
+.promotion-badge {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 1;
+
+  padding: 9px 13px;
+
+  border-radius: 999px;
+
+  background: rgba(4, 20, 38, 0.48);
+  border: 1px solid rgba(107,189,255,0.34);
+
+  font-size: 13px;
+  line-height: 1;
 
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -758,20 +841,99 @@ h1 {
   color: #6bbdff;
 }
 
-.idle-value {
-  font-size: clamp(28px, 2vw, 42px);
+.promotion-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
 
-  font-weight: 900;
-  line-height: 1.08;
+  padding: 28px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
-.idle-sub {
+.promotion-label,
+.promotion-contact-label {
+  font-size: 15px;
+  line-height: 1;
+
+  font-weight: 900;
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+
+  color: #6bbdff;
+}
+
+.promotion-title {
+  max-width: 760px;
+
+  font-size: clamp(34px, 3vw, 58px);
+  line-height: 0.96;
+
+  font-weight: 900;
+  letter-spacing: -0.05em;
+
+  text-transform: uppercase;
+}
+
+.promotion-subtitle {
+  max-width: 680px;
+
+  font-size: clamp(20px, 1.5vw, 30px);
+  line-height: 1.15;
+
+  font-weight: 800;
+
+  color: rgba(255,255,255,0.78);
+}
+
+.promotion-contact {
+  min-height: 220px;
+
+  padding: 42px 38px;
+
+  border-radius: 28px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8,24,42,0.86),
+      rgba(5,18,32,0.92)
+    );
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 16px 50px rgba(0,0,0,0.28);
+}
+
+.promotion-contact-value {
   margin-top: 12px;
 
-  font-size: 18px;
-  line-height: 1.4;
+  font-size: clamp(48px, 4.2vw, 84px);
+  line-height: 1.02;
 
-  color: rgba(255,255,255,0.48);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.promotion-contact-note {
+  margin-top: 4px;
+
+  font-size: clamp(22px, 1.7vw, 34px);
+  line-height: 1.12;
+
+  font-weight: 800;
+
+  color: rgba(255,255,255,0.64);
 }
 
 /* FOOTER */
@@ -847,6 +1009,11 @@ h1 {
 .low-density .schedule-area {
   flex: 0 1 auto;
   max-height: 30vh;
+}
+
+.low-density.promotion-mode .schedule-area {
+  flex: 1;
+  max-height: none;
 }
 
 .low-density .section {
@@ -983,6 +1150,64 @@ h1 {
     border-radius: 18px;
   }
 
+  .promotion-schedule,
+  .promotion-idle {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 22px;
+  }
+
+  .promotion-schedule .promotion-banner,
+  .promotion-schedule .section {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .promotion-banner {
+    min-height: 360px;
+    border-radius: 36px;
+  }
+
+  .promotion-badge {
+    top: 28px;
+    left: 28px;
+
+    font-size: 20px;
+    padding: 13px 17px;
+  }
+
+  .promotion-content {
+    padding: 34px;
+  }
+
+  .promotion-title {
+    font-size: clamp(52px, 6vw, 76px);
+  }
+
+  .promotion-subtitle {
+    font-size: clamp(30px, 3.6vw, 42px);
+  }
+
+  .promotion-label,
+  .promotion-contact-label {
+    font-size: 24px;
+  }
+
+  .promotion-contact {
+    min-height: 260px;
+    padding: 44px;
+    border-radius: 36px;
+    gap: 42px;
+  }
+
+  .promotion-contact-value {
+    font-size: clamp(58px, 7vw, 96px);
+  }
+
+  .promotion-contact-note {
+    font-size: clamp(34px, 4vw, 48px);
+  }
+
   .late-caption {
     font-size: 40px;
   }
@@ -1093,6 +1318,119 @@ h1 {
 
   .low-density .schedule-area {
     max-height: 26vh;
+  }
+
+  .promotion-mode .screen-content {
+    gap: 22px;
+  }
+
+  .promotion-mode .hero-zone {
+    height: 720px;
+    min-height: 720px;
+    max-height: 720px;
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .promotion-mode .schedule-area {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+  }
+
+  .promotion-mode .promotion-schedule {
+    height: 100%;
+    min-height: 0;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content minmax(280px, 1fr);
+    gap: 18px;
+  }
+
+  .promotion-mode .promotion-schedule-empty {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .promotion-mode .promotion-schedule-single {
+    grid-template-columns: 1fr;
+  }
+
+  .promotion-mode .promotion-schedule .section {
+    height: max-content;
+    min-height: 0;
+  }
+
+  .promotion-mode .promotion-schedule .table-head {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    font-size: 24px;
+  }
+
+  .promotion-mode .promotion-schedule .departure-row {
+    height: 140px;
+    min-height: 140px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .promotion-mode .promotion-schedule .time {
+    font-size: 62px;
+  }
+
+  .promotion-mode .promotion-schedule .route-title {
+    font-size: 36px;
+  }
+
+  .promotion-mode .promotion-schedule .ship {
+    font-size: 34px;
+  }
+
+  .promotion-mode .promotion-schedule .status {
+    min-height: 62px;
+    font-size: 18px;
+  }
+
+  .promotion-mode .promotion-banner {
+    min-height: 280px;
+    height: 100%;
+  }
+
+  .promotion-idle-area {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+  }
+
+  .promotion-idle {
+    height: 100%;
+    min-height: 0;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(320px, 1fr) max-content;
+    gap: 22px;
+  }
+
+  .promotion-idle .promotion-banner {
+    min-height: 320px;
+    height: 100%;
+  }
+
+  .promotion-contact {
+    min-height: 0;
+    padding: 42px;
+    gap: 32px;
+  }
+
+  .promotion-contact-value {
+    font-size: clamp(52px, 6.2vw, 86px);
+  }
+
+  .promotion-contact-note {
+    font-size: clamp(30px, 3.4vw, 42px);
   }
 }
 
