@@ -772,6 +772,41 @@ h1 {
   max-height: none;
 }
 
+.idle-mode .screen-content {
+  gap: 0;
+}
+
+.idle-mode .promotion-idle-area {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+.idle-mode .promotion-idle {
+  height: 100%;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) max-content;
+  gap: 18px;
+}
+
+.idle-mode .promotion-idle .promotion-banner {
+  height: 100%;
+  min-height: 0;
+}
+
+.idle-mode .promotion-contact {
+  min-height: 0;
+  padding: 28px 34px;
+
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 34px;
+}
+
 .promotion-idle {
   height: 100%;
   min-height: 0;
@@ -934,6 +969,12 @@ h1 {
   font-weight: 800;
 
   color: rgba(255,255,255,0.64);
+}
+
+.idle-mode .promotion-contact-value {
+  margin-top: 0;
+
+  font-size: clamp(44px, 3.6vw, 76px);
 }
 
 /* FOOTER */
@@ -1431,6 +1472,47 @@ h1 {
 
   .promotion-contact-note {
     font-size: clamp(30px, 3.4vw, 42px);
+  }
+
+  .idle-mode .screen-content {
+    gap: 0;
+  }
+
+  .idle-mode .promotion-idle-area {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .idle-mode .promotion-idle {
+    height: 100%;
+    min-height: 0;
+
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) max-content;
+    gap: 22px;
+  }
+
+  .idle-mode .promotion-idle .promotion-banner {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .idle-mode .promotion-contact {
+    min-height: 0;
+    padding: 34px 40px;
+
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .idle-mode .promotion-contact-value {
+    margin-top: 0;
+
+    font-size: clamp(52px, 6vw, 82px);
+    line-height: 1;
   }
 }
 

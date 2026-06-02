@@ -437,19 +437,8 @@ function IdlePanel({ promo }) {
       <PromotionBanner banner={promo} />
 
       <div className="promotion-contact">
-        <div>
-          <div className="promotion-contact-label">Билеты онлайн</div>
-          <div className="promotion-contact-value">astra-marine.ru</div>
-        </div>
-
-        <div>
-          <div className="promotion-contact-label">Единый телефон</div>
-          <div className="promotion-contact-value">+7 (812) 426-17-17</div>
-        </div>
-
-        <div className="promotion-contact-note">
-          Следите за расписанием на сайте
-        </div>
+        <div className="promotion-contact-value">astra-marine.ru</div>
+        <div className="promotion-contact-value">+7 (812) 426-17-17</div>
       </div>
     </div>
   )
@@ -788,6 +777,7 @@ function App() {
     : []
   const boardClassName = [
     'board',
+    activeScreen.type === 'idle' ? 'idle-mode' : '',
     isLateMode ? 'late-mode' : '',
     isLowDensityMode ? 'low-density' : '',
     isPromotionMode ? 'promotion-mode' : '',
@@ -815,14 +805,16 @@ function App() {
       </header>
 
       <div className={isScreenFading ? 'screen-content screen-content-fading' : 'screen-content'}>
-        <div className="screen-title-row">
-          <div className="screen-title">{activeScreen.title}</div>
-          <ScreenDots activeIndex={screenIndex} count={screens.length} />
-        </div>
+        {activeScreen.type !== 'idle' ? (
+          <div className="screen-title-row">
+            <div className="screen-title">{activeScreen.title}</div>
+            <ScreenDots activeIndex={screenIndex} count={screens.length} />
+          </div>
+        ) : null}
 
         {error ? <div className="error">{error}</div> : null}
 
-        {activeScreen.type === 'common' ? (
+        {activeScreen.type === 'idle' ? null : activeScreen.type === 'common' ? (
           <CommonHeroZone
             meteorRow={activeScreen.splitHeroRows?.meteor}
             cruiseRow={activeScreen.splitHeroRows?.cruise}
