@@ -412,15 +412,26 @@ function DepartureRow({ row }) {
   )
 }
 
-function PromotionBanner({ banner }) {
+function PromotionBanner({ banner, isIdle = false }) {
   return (
     <article
-      className="promotion-banner"
-      style={{
-        backgroundImage: `url(${banner.image})`,
-        backgroundPosition: banner.position || 'center center',
-      }}
+      className={isIdle ? 'promotion-banner promotion-banner-idle' : 'promotion-banner'}
+      style={
+        isIdle
+          ? undefined
+          : {
+              backgroundImage: `url(${banner.image})`,
+              backgroundPosition: banner.position || 'center center',
+            }
+      }
     >
+      {isIdle ? (
+        <img
+          className="promotion-banner-image"
+          src={banner.image}
+          alt=""
+        />
+      ) : null}
     </article>
   )
 }
@@ -428,7 +439,7 @@ function PromotionBanner({ banner }) {
 function IdlePanel({ promo }) {
   return (
     <div className="promotion-idle">
-      <PromotionBanner banner={promo} />
+      <PromotionBanner banner={promo} isIdle />
 
       <div className="promotion-contact">
         <div className="promotion-contact-value promotion-contact-phone">+7 (812) 426-17-17</div>
