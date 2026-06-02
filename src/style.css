@@ -802,6 +802,7 @@ h1 {
   padding: 28px 34px;
 
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 34px;
@@ -850,79 +851,6 @@ h1 {
       rgba(3, 10, 24, 0.02) 0%,
       rgba(3, 10, 24, 0.48) 100%
     );
-}
-
-.promotion-badge {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 1;
-
-  padding: 9px 13px;
-
-  border-radius: 999px;
-
-  background: rgba(4, 20, 38, 0.48);
-  border: 1px solid rgba(107,189,255,0.34);
-
-  font-size: 13px;
-  line-height: 1;
-
-  font-weight: 900;
-  letter-spacing: 0.14em;
-
-  text-transform: uppercase;
-
-  color: #6bbdff;
-}
-
-.promotion-content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-
-  padding: 28px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.promotion-label,
-.promotion-contact-label {
-  font-size: 15px;
-  line-height: 1;
-
-  font-weight: 900;
-  letter-spacing: 0.14em;
-
-  text-transform: uppercase;
-
-  color: #6bbdff;
-}
-
-.promotion-title {
-  max-width: 760px;
-
-  font-size: clamp(34px, 3vw, 58px);
-  line-height: 0.96;
-
-  font-weight: 900;
-  letter-spacing: -0.05em;
-
-  text-transform: uppercase;
-}
-
-.promotion-subtitle {
-  max-width: 680px;
-
-  font-size: clamp(20px, 1.5vw, 30px);
-  line-height: 1.15;
-
-  font-weight: 800;
-
-  color: rgba(255,255,255,0.78);
 }
 
 .promotion-contact {
@@ -974,7 +902,16 @@ h1 {
 .idle-mode .promotion-contact-value {
   margin-top: 0;
 
-  font-size: clamp(44px, 3.6vw, 76px);
+  white-space: nowrap;
+}
+
+.idle-mode .promotion-contact-phone {
+  font-size: clamp(52px, 4.2vw, 88px);
+}
+
+.idle-mode .promotion-contact-site {
+  font-size: clamp(42px, 3.2vw, 68px);
+  color: rgba(255,255,255,0.88);
 }
 
 /* FOOTER */
@@ -1207,31 +1144,6 @@ h1 {
   .promotion-banner {
     min-height: 360px;
     border-radius: 36px;
-  }
-
-  .promotion-badge {
-    top: 28px;
-    left: 28px;
-
-    font-size: 20px;
-    padding: 13px 17px;
-  }
-
-  .promotion-content {
-    padding: 34px;
-  }
-
-  .promotion-title {
-    font-size: clamp(52px, 6vw, 76px);
-  }
-
-  .promotion-subtitle {
-    font-size: clamp(30px, 3.6vw, 42px);
-  }
-
-  .promotion-label,
-  .promotion-contact-label {
-    font-size: 24px;
   }
 
   .promotion-contact {
@@ -1502,17 +1414,26 @@ h1 {
     min-height: 0;
     padding: 34px 40px;
 
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 18px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px 34px;
   }
 
   .idle-mode .promotion-contact-value {
     margin-top: 0;
 
-    font-size: clamp(52px, 6vw, 82px);
     line-height: 1;
+    white-space: nowrap;
+  }
+
+  .idle-mode .promotion-contact-phone {
+    font-size: clamp(52px, 6vw, 82px);
+  }
+
+  .idle-mode .promotion-contact-site {
+    font-size: clamp(42px, 5vw, 68px);
   }
 }
 

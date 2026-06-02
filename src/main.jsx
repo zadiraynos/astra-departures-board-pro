@@ -421,12 +421,6 @@ function PromotionBanner({ banner }) {
         backgroundPosition: banner.position || 'center center',
       }}
     >
-      <div className="promotion-badge">Рекомендуем</div>
-      <div className="promotion-content">
-        <div className="promotion-label">Astra Marine</div>
-        <div className="promotion-title">{banner.title}</div>
-        <div className="promotion-subtitle">{banner.subtitle}</div>
-      </div>
     </article>
   )
 }
@@ -437,8 +431,8 @@ function IdlePanel({ promo }) {
       <PromotionBanner banner={promo} />
 
       <div className="promotion-contact">
-        <div className="promotion-contact-value">astra-marine.ru</div>
-        <div className="promotion-contact-value">+7 (812) 426-17-17</div>
+        <div className="promotion-contact-value promotion-contact-phone">+7 (812) 426-17-17</div>
+        <div className="promotion-contact-value promotion-contact-site">astra-marine.ru</div>
       </div>
     </div>
   )
