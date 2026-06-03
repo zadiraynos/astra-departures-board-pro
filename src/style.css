@@ -50,6 +50,16 @@ body {
     );
 }
 
+.idle-mode.board {
+  padding: 18px;
+  gap: 0;
+}
+
+.idle-mode .header,
+.idle-mode .footer {
+  display: none;
+}
+
 .header,
 .screen-content,
 .screen-title-row,
@@ -773,6 +783,8 @@ h1 {
 }
 
 .idle-mode .screen-content {
+  flex: 1;
+  min-height: 0;
   gap: 0;
 }
 
@@ -990,6 +1002,11 @@ h1 {
   .board {
     padding: 50px;
     gap: 28px;
+  }
+
+  .idle-mode.board {
+    padding: 20px;
+    gap: 0;
   }
 
   .screen-content {

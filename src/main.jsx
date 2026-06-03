@@ -1,15 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
+import { getHeroImage, getHeroImageFallback } from './utils/heroImage'
 
-import heroMeteorDay from './assets/hero-meteor-day.jpg'
-import heroDay1 from './assets/hero-day-1.jpg'
-import heroDay2 from './assets/hero-day-2.jpg'
-import heroDay3 from './assets/hero-day-3.jpg'
-import heroDay4 from './assets/hero-day-4.jpg'
-import heroDay5 from './assets/hero-day-5.jpg'
-import heroNight1 from './assets/hero-night-1.jpg'
-import heroNight2 from './assets/hero-night-2.jpg'
 import promoMeteor from './assets/promos/promo-meteor.jpg'
 import promoParties from './assets/promos/promo-parties.jpg'
 import promoPeterhofRestaurant from './assets/promos/promo-petergof-restaurant.jpg'
@@ -33,12 +26,6 @@ const COMMON_SCREEN_CRUISE_LIMIT = 4
 
 const GOOGLE_SHEETS_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP3pB7cq4Oj_okRU6nE4Dt7LpVtlz9N2piZ2TM1M-X22xXbNxRtY4Jg09jY387lHw3-wUxwzzdOmd4/pub?output=csv'
-
-const heroImages = {
-  meteor: heroMeteorDay,
-  day: [heroDay1, heroDay2, heroDay3, heroDay4, heroDay5],
-  night: [heroNight1, heroNight2],
-}
 
 const promoBanners = [
   {
@@ -72,6 +59,10 @@ const promoBanners = [
     subtitle: 'Спокойный маршрут для детей и взрослых',
   },
 ]
+
+function getHeroBackgroundImage(image) {
+  return `url(${image}), url(${getHeroImageFallback()})`
+}
 
 const manualStatusMap = {
   delay: { label: 'ЗАДЕРЖКА', className: 'status-delay' },
@@ -333,54 +324,8 @@ function getHeroRows(rows) {
     .slice(0, 3)
 }
 
-function getHeroImageForRow(row, screenType, screenIndex, now) {
-  const hour = now.getHours()
-
-  if (!row) {
-    if (hour >= 20 || hour < 6) return heroImages.night[screenIndex % heroImages.night.length]
-    return heroImages.day[screenIndex % heroImages.day.length]
-  }
-
-  const route = String(row.route || '').toLowerCase()
-  const ship = String(row.ship || '').toLowerCase()
-  const category = String(row.category || '').toLowerCase()
-
-  if (category === 'meteor' || screenType === 'meteor') {
-    return heroImages.meteor
-  }
-
-  if (
-    route.includes('мост') ||
-    route.includes('джаз') ||
-    route.includes('ноч') ||
-    ship.includes('астра')
-  ) {
-    return heroImages.night[screenIndex % heroImages.night.length]
-  }
-
-  if (
-    route.includes('финский') ||
-    route.includes('лахта') ||
-    route.includes('петергоф') ||
-    route.includes('парадный')
-  ) {
-    return heroImages.day[2]
-  }
-
-  if (
-    route.includes('северные') ||
-    route.includes('остров') ||
-    route.includes('реки') ||
-    route.includes('каналы')
-  ) {
-    return heroImages.day[screenIndex % heroImages.day.length]
-  }
-
-  if (hour >= 20 || hour < 6) {
-    return heroImages.night[screenIndex % heroImages.night.length]
-  }
-
-  return heroImages.day[screenIndex % heroImages.day.length]
+function getHeroImageForRow(row) {
+  return getHeroImage(row)
 }
 
 function getScheduleRouteTitle(route) {
@@ -484,7 +429,7 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
             enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
           ].filter(Boolean).join(' ')
         }
-        style={{ '--hero-image': `url(${image})` }}
+        style={{ '--hero-image': getHeroBackgroundImage(image) }}
       >
         <div className="hero-content">
           <div className="hero-kicker">РАСПИСАНИЕ</div>
@@ -507,7 +452,7 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
           enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
         ].filter(Boolean).join(' ')
       }
-      style={{ '--hero-image': `url(${image})` }}
+      style={{ '--hero-image': getHeroBackgroundImage(image) }}
     >
       <div className="hero-content">
         <div className="hero-kicker">{title}</div>
@@ -542,7 +487,7 @@ function CommonHeroCard({ label, row, image }) {
   return (
     <article
       className="common-hero-card"
-      style={{ backgroundImage: `url(${image})` }}
+      style={{ backgroundImage: getHeroBackgroundImage(image) }}
     >
       <div className="common-hero-card-top">
         <div className="common-hero-label">{label}</div>
@@ -730,7 +675,7 @@ function App() {
   const activeHeroIndex = heroRotationLimit > 0 ? heroRotationIndex % heroRotationLimit : 0
   const activeHeroRow = activeScreen.heroRows[activeHeroIndex]
   const primaryHeroRow = activeScreen.heroRows[0]
-  const heroImage = getHeroImageForRow(activeHeroRow, activeScreen.type, screenIndex, now)
+  const heroImage = getHeroImageForRow(activeHeroRow)
   const activePromo = promoBanners[promoIndex % promoBanners.length]
   const commonScheduleStyle =
     activeScreen.type === 'common'
@@ -812,8 +757,8 @@ function App() {
           <CommonHeroZone
             meteorRow={activeScreen.splitHeroRows?.meteor}
             cruiseRow={activeScreen.splitHeroRows?.cruise}
-            meteorImage={getHeroImageForRow(activeScreen.splitHeroRows?.meteor, 'meteor', screenIndex, now)}
-            cruiseImage={getHeroImageForRow(activeScreen.splitHeroRows?.cruise, 'cruise', screenIndex, now)}
+            meteorImage={getHeroImageForRow(activeScreen.splitHeroRows?.meteor)}
+            cruiseImage={getHeroImageForRow(activeScreen.splitHeroRows?.cruise)}
           />
         ) : (
           <HeroZone
