@@ -328,6 +328,16 @@ function getHeroImageForRow(row) {
   return getHeroImage(row)
 }
 
+function getHeroKeyForDebug(row) {
+  if (!row) return ''
+
+  const directValue = row.hero_key || row.heroKey
+  if (directValue) return directValue
+
+  const heroKeyField = Object.keys(row).find((key) => key.trim().toLowerCase() === 'hero_key')
+  return heroKeyField ? row[heroKeyField] : ''
+}
+
 function getScheduleRouteTitle(route) {
   const normalizedRoute = String(route || '').trim().toLowerCase()
 
@@ -687,6 +697,17 @@ function App() {
   useEffect(() => {
     setHeroRotationIndex(0)
   }, [screenIndex])
+
+  useEffect(() => {
+    if (!activeHeroRow) return
+
+    console.log('[Hero image]', {
+      route: activeHeroRow.route,
+      ship: activeHeroRow.ship,
+      hero_key: getHeroKeyForDebug(activeHeroRow),
+      imageUrl: heroImage,
+    })
+  }, [activeHeroRow, heroImage])
 
   useEffect(() => {
     if (heroRotationLimit <= 1) {
