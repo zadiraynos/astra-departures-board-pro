@@ -13,6 +13,129 @@ const shipToHeroKey = {
   'фестиваль': 'festival-day',
 }
 
+const heroVisualConfig = {
+  'astra-day': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'astra-sunset': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'astra-night': {
+    position: 'center 45%',
+    scale: 1.15,
+    brightness: 1.2,
+    overlayStrength: 'light',
+  },
+  'koryshka-day': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'koryshka-sunset': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'koryshka-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'ryapushka-day': {
+    position: 'center 65%',
+    scale: 1.2,
+    brightness: 1.1,
+    overlayStrength: 'medium',
+  },
+  'ryapushka-sunset': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'ryapushka-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'm194-day': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'm194-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'm194-party': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'alenka-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'palmira-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'cityblues-night': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'meteor': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'meteor-peterhof': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'light',
+  },
+  'meteor-kronstadt': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'light',
+  },
+  'festival-day': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+  'default': {
+    position: 'center center',
+    scale: 1,
+    brightness: 1,
+    overlayStrength: 'medium',
+  },
+}
+
 function normalizeKey(value) {
   return String(value || '').trim()
 }
@@ -42,19 +165,34 @@ function getHeroPath(heroKey) {
   return `${base}hero/${heroKey}.jpg`.replace(/\/{2,}/g, '/')
 }
 
-export function getHeroImage(departure) {
+function getHeroKey(departure) {
   const explicitHeroKey = normalizeKey(getFieldValue(departure, ['hero_key', 'heroKey', 'Hero Key', 'HERO_KEY']))
 
   if (explicitHeroKey) {
-    return getHeroPath(explicitHeroKey)
+    return explicitHeroKey
   }
 
   const ship = normalizeShip(departure?.ship)
-  const heroKey = shipToHeroKey[ship] || 'default'
+  return shipToHeroKey[ship] || 'default'
+}
 
-  return getHeroPath(heroKey)
+export function getHeroImage(departure) {
+  return getHeroPath(getHeroKey(departure))
 }
 
 export function getHeroImageFallback() {
   return getHeroPath('default')
+}
+
+export function getHeroVisualConfig(departure) {
+  const heroKey = getHeroKey(departure)
+  const config = heroVisualConfig[heroKey] || {}
+
+  return {
+    heroKey,
+    position: config.position || 'center center',
+    scale: config.scale || 1,
+    brightness: config.brightness || 1,
+    overlayStrength: config.overlayStrength || 'medium',
+  }
 }

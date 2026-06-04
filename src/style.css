@@ -192,8 +192,8 @@ h1 {
   z-index: 0;
 
   background-image: var(--hero-image);
-  background-size: cover;
-  background-position: center right;
+  background-size: var(--hero-background-size, cover);
+  background-position: var(--hero-background-position, center right);
   background-repeat: no-repeat;
 
   transform: scale(1);
@@ -213,21 +213,21 @@ h1 {
   background:
     linear-gradient(
       90deg,
-      rgba(3, 10, 24, 0.94) 0%,
-      rgba(3, 10, 24, 0.76) 38%,
-      rgba(3, 10, 24, 0.24) 72%,
-      rgba(3, 10, 24, 0.12) 100%
+      rgba(3, 10, 24, 0.78) 0%,
+      rgba(3, 10, 24, 0.56) 38%,
+      rgba(3, 10, 24, 0.16) 72%,
+      rgba(3, 10, 24, 0.06) 100%
     ),
     linear-gradient(
       180deg,
-      rgba(3, 10, 24, 0.06) 0%,
-      rgba(3, 10, 24, 0.42) 72%,
-      rgba(6, 18, 37, 0.84) 100%
+      rgba(3, 10, 24, 0.03) 0%,
+      rgba(3, 10, 24, 0.28) 72%,
+      rgba(6, 18, 37, 0.62) 100%
     ),
     linear-gradient(
       180deg,
       transparent 64%,
-      rgba(6, 18, 37, 0.52) 100%
+      rgba(6, 18, 37, 0.34) 100%
     );
 
   pointer-events: none;
@@ -236,6 +236,27 @@ h1 {
 .hero-zone > * {
   position: relative;
   z-index: 2;
+}
+
+.hero-debug-label {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 5;
+
+  max-width: min(520px, 46%);
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
+  background: rgba(0,0,0,0.68);
+  border: 1px solid rgba(255,255,255,0.2);
+
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 700;
+
+  color: rgba(255,255,255,0.9);
 }
 
 .hero-content {
@@ -393,14 +414,14 @@ h1 {
   background:
     linear-gradient(
       90deg,
-      rgba(3, 10, 24, 0.92) 0%,
-      rgba(3, 10, 24, 0.72) 48%,
-      rgba(3, 10, 24, 0.34) 100%
+      rgba(3, 10, 24, 0.72) 0%,
+      rgba(3, 10, 24, 0.48) 48%,
+      rgba(3, 10, 24, 0.18) 100%
     ),
     linear-gradient(
       180deg,
-      rgba(3, 10, 24, 0.12) 0%,
-      rgba(3, 10, 24, 0.72) 100%
+      rgba(3, 10, 24, 0.06) 0%,
+      rgba(3, 10, 24, 0.48) 100%
     ),
     radial-gradient(circle at 92% 10%, rgba(107,189,255,0.22), transparent 26%);
 
@@ -410,6 +431,13 @@ h1 {
 .common-hero-card > * {
   position: relative;
   z-index: 1;
+}
+
+.common-hero-card .hero-debug-label {
+  right: 14px;
+  bottom: 14px;
+  max-width: calc(100% - 28px);
+  font-size: 10px;
 }
 
 .common-hero-card-top {

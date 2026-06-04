@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
-import { getHeroImage, getHeroImageFallback } from './utils/heroImage'
+import { getHeroImage, getHeroImageFallback, getHeroVisualConfig } from './utils/heroImage'
 
 import promoMeteor from './assets/promos/promo-meteor.jpg'
 import promoParties from './assets/promos/promo-parties.jpg'
@@ -18,6 +18,7 @@ const HERO_ROTATION_MS = 6_000
 const PROMO_ROTATION_MS = 8_000
 const SCREEN_FADE_MS = 850
 const NAVIGATION_DAY_START_HOUR = 5
+const HERO_DEBUG = false
 
 const SINGLE_SCREEN_METEOR_LIMIT = 8
 const SINGLE_SCREEN_CRUISE_LIMIT = 8
@@ -62,6 +63,33 @@ const promoBanners = [
 
 function getHeroBackgroundImage(image) {
   return `url(${image}), url(${getHeroImageFallback()})`
+}
+
+function getHeroBackgroundSize(visualConfig) {
+  const scale = Number(visualConfig?.scale) || 1
+
+  if (scale === 1) return 'cover, cover'
+
+  return `${Math.round(scale * 100)}%, cover`
+}
+
+function getHeroBackgroundPosition(visualConfig) {
+  return `${visualConfig?.position || 'center right'}, center right`
+}
+
+function HeroDebugLabel({ image, visualConfig }) {
+  if (!HERO_DEBUG || !visualConfig) return null
+
+  return (
+    <div className="hero-debug-label">
+      <div>hero_key: {visualConfig.heroKey}</div>
+      <div>imageUrl: {image}</div>
+      <div>position: {visualConfig.position}</div>
+      <div>scale: {visualConfig.scale}</div>
+      <div>brightness: {visualConfig.brightness}</div>
+      <div>overlay: {visualConfig.overlayStrength}</div>
+    </div>
+  )
 }
 
 const manualStatusMap = {
@@ -428,7 +456,7 @@ function Section({ title, rows }) {
   )
 }
 
-function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhotoZoom }) {
+function HeroZone({ rows, title, now, image, visualConfig, isLateMode, activeIndex, enablePhotoZoom }) {
   if (!rows.length) {
     return (
       <section
@@ -439,13 +467,18 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
             enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
           ].filter(Boolean).join(' ')
         }
-        style={{ '--hero-image': getHeroBackgroundImage(image) }}
+        style={{
+          '--hero-image': getHeroBackgroundImage(image),
+          '--hero-background-size': getHeroBackgroundSize(visualConfig),
+          '--hero-background-position': getHeroBackgroundPosition(visualConfig),
+        }}
       >
         <div className="hero-content">
           <div className="hero-kicker">РАСПИСАНИЕ</div>
           <div className="hero-title">Рейсы на сегодня завершены</div>
           <div className="hero-subtitle">Расписание обновится автоматически</div>
         </div>
+        <HeroDebugLabel image={image} visualConfig={visualConfig} />
       </section>
     )
   }
@@ -462,7 +495,11 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
           enablePhotoZoom ? 'hero-zone-photo-zoom' : '',
         ].filter(Boolean).join(' ')
       }
-      style={{ '--hero-image': getHeroBackgroundImage(image) }}
+      style={{
+        '--hero-image': getHeroBackgroundImage(image),
+        '--hero-background-size': getHeroBackgroundSize(visualConfig),
+        '--hero-background-position': getHeroBackgroundPosition(visualConfig),
+      }}
     >
       <div className="hero-content">
         <div className="hero-kicker">{title}</div>
@@ -487,17 +524,22 @@ function HeroZone({ rows, title, now, image, isLateMode, activeIndex, enablePhot
           </div>
         ) : null}
       </div>
+      <HeroDebugLabel image={image} visualConfig={visualConfig} />
     </section>
   )
 }
 
-function CommonHeroCard({ label, row, image }) {
+function CommonHeroCard({ label, row, image, visualConfig }) {
   if (!row) return null
 
   return (
     <article
       className="common-hero-card"
-      style={{ backgroundImage: getHeroBackgroundImage(image) }}
+      style={{
+        backgroundImage: getHeroBackgroundImage(image),
+        backgroundSize: getHeroBackgroundSize(visualConfig),
+        backgroundPosition: getHeroBackgroundPosition(visualConfig),
+      }}
     >
       <div className="common-hero-card-top">
         <div className="common-hero-label">{label}</div>
@@ -509,15 +551,16 @@ function CommonHeroCard({ label, row, image }) {
       <div className="common-hero-time">{row.time}</div>
       <div className="common-hero-route">{row.route}</div>
       <div className="common-hero-ship">{row.ship}</div>
+      <HeroDebugLabel image={image} visualConfig={visualConfig} />
     </article>
   )
 }
 
-function CommonHeroZone({ meteorRow, cruiseRow, meteorImage, cruiseImage }) {
+function CommonHeroZone({ meteorRow, cruiseRow, meteorImage, cruiseImage, meteorVisualConfig, cruiseVisualConfig }) {
   return (
     <section className="common-hero-grid">
-      <CommonHeroCard label="Метеоры" row={meteorRow} image={meteorImage} />
-      <CommonHeroCard label="Водные прогулки" row={cruiseRow} image={cruiseImage} />
+      <CommonHeroCard label="Метеоры" row={meteorRow} image={meteorImage} visualConfig={meteorVisualConfig} />
+      <CommonHeroCard label="Водные прогулки" row={cruiseRow} image={cruiseImage} visualConfig={cruiseVisualConfig} />
     </section>
   )
 }
@@ -686,6 +729,7 @@ function App() {
   const activeHeroRow = activeScreen.heroRows[activeHeroIndex]
   const primaryHeroRow = activeScreen.heroRows[0]
   const heroImage = getHeroImageForRow(activeHeroRow)
+  const heroVisualConfig = useMemo(() => getHeroVisualConfig(activeHeroRow), [activeHeroRow])
   const activePromo = promoBanners[promoIndex % promoBanners.length]
   const commonScheduleStyle =
     activeScreen.type === 'common'
@@ -706,8 +750,9 @@ function App() {
       ship: activeHeroRow.ship,
       hero_key: getHeroKeyForDebug(activeHeroRow),
       imageUrl: heroImage,
+      visual: heroVisualConfig,
     })
-  }, [activeHeroRow, heroImage])
+  }, [activeHeroRow, heroImage, heroVisualConfig])
 
   useEffect(() => {
     if (heroRotationLimit <= 1) {
@@ -780,6 +825,8 @@ function App() {
             cruiseRow={activeScreen.splitHeroRows?.cruise}
             meteorImage={getHeroImageForRow(activeScreen.splitHeroRows?.meteor)}
             cruiseImage={getHeroImageForRow(activeScreen.splitHeroRows?.cruise)}
+            meteorVisualConfig={getHeroVisualConfig(activeScreen.splitHeroRows?.meteor)}
+            cruiseVisualConfig={getHeroVisualConfig(activeScreen.splitHeroRows?.cruise)}
           />
         ) : (
           <HeroZone
@@ -787,6 +834,7 @@ function App() {
             title={activeScreen.heroTitle}
             now={now}
             image={heroImage}
+            visualConfig={heroVisualConfig}
             isLateMode={isLateMode}
             activeIndex={activeHeroIndex}
             enablePhotoZoom={activeScreen.heroRows.length === 1}
