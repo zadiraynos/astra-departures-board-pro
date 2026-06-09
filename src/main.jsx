@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
+import { PromoScreen } from './components/PromoScreen'
+import { playlist } from './config/playlist'
 import { getHeroImage, getHeroImageFallback, getHeroVisualConfig } from './utils/heroImage'
 
 import promoMeteor from './assets/promos/promo-meteor.jpg'
@@ -24,6 +26,14 @@ const SINGLE_SCREEN_METEOR_LIMIT = 8
 const SINGLE_SCREEN_CRUISE_LIMIT = 8
 const COMMON_SCREEN_METEOR_LIMIT = 4
 const COMMON_SCREEN_CRUISE_LIMIT = 4
+
+const playlistTypeToScreenType = {
+  meteor: 'meteor',
+  meteors: 'meteor',
+  cruise: 'cruise',
+  cruises: 'cruise',
+  common: 'common',
+}
 
 const GOOGLE_SHEETS_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP3pB7cq4Oj_okRU6nE4Dt7LpVtlz9N2piZ2TM1M-X22xXbNxRtY4Jg09jY387lHw3-wUxwzzdOmd4/pub?output=csv'
@@ -629,10 +639,10 @@ function App() {
   const commonCruiseRows = groups.other.slice(0, COMMON_SCREEN_CRUISE_LIMIT)
 
   const screens = useMemo(() => {
-    const result = []
+    const scheduleScreens = []
 
     if (meteorRows.length) {
-      result.push({
+      scheduleScreens.push({
         type: 'meteor',
         title: 'Метеоры',
         heroTitle: 'Ближайшее отправление',
@@ -643,7 +653,7 @@ function App() {
     }
 
     if (cruiseRows.length) {
-      result.push({
+      scheduleScreens.push({
         type: 'cruise',
         title: 'Дневные и вечерние прогулки',
         heroTitle: 'Ближайшее отправление',
@@ -657,7 +667,7 @@ function App() {
       const commonMeteorHeroRows = getHeroRows(meteorRows)
       const commonCruiseHeroRows = getHeroRows(cruiseRows)
 
-      result.push({
+      scheduleScreens.push({
         type: 'common',
         title: 'Общее расписание',
         heroTitle: 'Ближайшее отправление',
@@ -680,17 +690,44 @@ function App() {
       })
     }
 
-    if (!result.length) {
-      result.push({
+    if (!scheduleScreens.length) {
+      return [{
         type: 'idle',
         title: 'Расписание',
         heroTitle: 'Расписание',
         heroRows: [],
         content: <IdlePanel />,
-      })
+        duration: SCREEN_DURATION_MS,
+      }]
     }
 
-    return result
+    const screenByType = scheduleScreens.reduce((acc, screen) => {
+      acc[screen.type] = screen
+      return acc
+    }, {})
+    const fallbackScreen = screenByType.common || scheduleScreens[0]
+    const playlistScreens = playlist.map((item) => {
+      if (item.type === 'promo') {
+        return {
+          type: 'promo',
+          title: 'Astra Marine',
+          heroTitle: '',
+          heroRows: [],
+          promoKey: item.promoKey,
+          duration: item.duration || SCREEN_DURATION_MS,
+        }
+      }
+
+      const screenType = playlistTypeToScreenType[item.type] || 'common'
+      const screen = screenByType[screenType] || fallbackScreen
+
+      return {
+        ...screen,
+        duration: item.duration || SCREEN_DURATION_MS,
+      }
+    })
+
+    return playlistScreens.length ? playlistScreens : scheduleScreens
   }, [meteorRows, cruiseRows, commonMeteorRows, commonCruiseRows, visibleRows])
 
   useEffect(() => {
@@ -698,6 +735,8 @@ function App() {
     setHeroRotationIndex(0)
     setIsScreenFading(false)
   }, [screens.length])
+
+  const activeScreen = screens[screenIndex] || screens[0]
 
   useEffect(() => {
     if (screens.length <= 1) {
@@ -707,7 +746,7 @@ function App() {
 
     let fadeTimer
 
-    const screenTimer = setInterval(() => {
+    const screenTimer = window.setTimeout(() => {
       setIsScreenFading(true)
 
       fadeTimer = window.setTimeout(() => {
@@ -715,15 +754,14 @@ function App() {
         setScreenIndex((current) => (current + 1) % screens.length)
         setIsScreenFading(false)
       }, SCREEN_FADE_MS)
-    }, SCREEN_DURATION_MS)
+    }, activeScreen?.duration || SCREEN_DURATION_MS)
 
     return () => {
-      clearInterval(screenTimer)
+      window.clearTimeout(screenTimer)
       window.clearTimeout(fadeTimer)
     }
-  }, [screens.length])
+  }, [screens.length, screenIndex, activeScreen?.duration])
 
-  const activeScreen = screens[screenIndex] || screens[0]
   const heroRotationLimit = Math.min(activeScreen.heroRows.length, 3)
   const activeHeroIndex = heroRotationLimit > 0 ? heroRotationIndex % heroRotationLimit : 0
   const activeHeroRow = activeScreen.heroRows[activeHeroIndex]
@@ -783,6 +821,7 @@ function App() {
   const boardClassName = [
     'board',
     activeScreen.type === 'idle' ? 'idle-mode' : '',
+    activeScreen.type === 'promo' ? 'promo-screen-mode' : '',
     isLateMode ? 'late-mode' : '',
     isLowDensityMode ? 'low-density' : '',
     isPromotionMode ? 'promotion-mode' : '',
@@ -810,7 +849,7 @@ function App() {
       </header>
 
       <div className={isScreenFading ? 'screen-content screen-content-fading' : 'screen-content'}>
-        {activeScreen.type !== 'idle' ? (
+        {activeScreen.type !== 'idle' && activeScreen.type !== 'promo' ? (
           <div className="screen-title-row">
             <div className="screen-title">{activeScreen.title}</div>
             <ScreenDots activeIndex={screenIndex} count={screens.length} />
@@ -819,7 +858,9 @@ function App() {
 
         {error ? <div className="error">{error}</div> : null}
 
-        {activeScreen.type === 'idle' ? null : activeScreen.type === 'common' ? (
+        {activeScreen.type === 'promo' ? (
+          <PromoScreen promoKey={activeScreen.promoKey} />
+        ) : activeScreen.type === 'idle' ? null : activeScreen.type === 'common' ? (
           <CommonHeroZone
             meteorRow={activeScreen.splitHeroRows?.meteor}
             cruiseRow={activeScreen.splitHeroRows?.cruise}
@@ -841,27 +882,29 @@ function App() {
           />
         )}
 
-        <div
-          className={
-            [
-              'schedule-area',
-              activeScreen.type === 'common' ? 'common-schedule' : '',
-              activeScreen.type === 'idle' ? 'promotion-idle-area' : '',
-              isPromotionMode ? 'promotion-schedule' : '',
-              isPromotionMode && !promotionRows.length ? 'promotion-schedule-empty' : '',
-              isPromotionMode && promotionRows.length === 1 ? 'promotion-schedule-single' : '',
-            ].filter(Boolean).join(' ')
-          }
-          style={commonScheduleStyle}
-        >
-          {activeScreen.type === 'idle' ? (
-            <IdlePanel promo={activePromo} />
-          ) : isPromotionMode ? (
-            <PromotionSchedule rows={promotionRows} promo={activePromo} />
-          ) : (
-            activeScreen.content
-          )}
-        </div>
+        {activeScreen.type !== 'promo' ? (
+          <div
+            className={
+              [
+                'schedule-area',
+                activeScreen.type === 'common' ? 'common-schedule' : '',
+                activeScreen.type === 'idle' ? 'promotion-idle-area' : '',
+                isPromotionMode ? 'promotion-schedule' : '',
+                isPromotionMode && !promotionRows.length ? 'promotion-schedule-empty' : '',
+                isPromotionMode && promotionRows.length === 1 ? 'promotion-schedule-single' : '',
+              ].filter(Boolean).join(' ')
+            }
+            style={commonScheduleStyle}
+          >
+            {activeScreen.type === 'idle' ? (
+              <IdlePanel promo={activePromo} />
+            ) : isPromotionMode ? (
+              <PromotionSchedule rows={promotionRows} promo={activePromo} />
+            ) : (
+              activeScreen.content
+            )}
+          </div>
+        ) : null}
       </div>
 
       <footer className="footer">Информация обновляется автоматически</footer>
