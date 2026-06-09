@@ -13,7 +13,7 @@ import promoFamily from './assets/promos/promo-family.jpg'
 
 const PIER_ID = 'spusk_so_lvami'
 
-const REFRESH_DATA_MS = 10_000
+const REFRESH_DATA_MS = 30_000
 const REFRESH_CLOCK_MS = 15_000
 const SCREEN_DURATION_MS = 15_000
 const HERO_ROTATION_MS = 6_000
@@ -599,7 +599,8 @@ function App() {
   async function loadRows() {
     try {
       const separator = GOOGLE_SHEETS_CSV_URL.includes('?') ? '&' : '?'
-      const response = await fetch(`${GOOGLE_SHEETS_CSV_URL}${separator}cacheBust=${Date.now()}`, {
+      const url = `${GOOGLE_SHEETS_CSV_URL}${separator}t=${Date.now()}`
+      const response = await fetch(url, {
         cache: 'no-store',
       })
 
@@ -608,6 +609,10 @@ function App() {
       const csvText = await response.text()
       setRows(csvToRows(csvText))
       setError('')
+
+      if (import.meta.env.DEV) {
+        console.info('[Data refresh]', new Date().toLocaleTimeString())
+      }
     } catch (err) {
       setError('Нет связи с расписанием')
     }
