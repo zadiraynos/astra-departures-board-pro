@@ -750,7 +750,6 @@ function App() {
     }
 
     let fadeTimer
-    let fadeInFrame
 
     const screenTimer = window.setTimeout(() => {
       setIsScreenFading(true)
@@ -758,18 +757,24 @@ function App() {
       fadeTimer = window.setTimeout(() => {
         setHeroRotationIndex(0)
         setScreenIndex((current) => (current + 1) % screens.length)
-        fadeInFrame = window.requestAnimationFrame(() => {
-          setIsScreenFading(false)
-        })
       }, SCREEN_FADE_MS)
     }, activeScreen?.duration || SCREEN_DURATION_MS)
 
     return () => {
       window.clearTimeout(screenTimer)
       window.clearTimeout(fadeTimer)
-      window.cancelAnimationFrame(fadeInFrame)
     }
   }, [screens.length, screenIndex, activeScreen?.duration])
+
+  useEffect(() => {
+    if (!isScreenFading) return undefined
+
+    const fadeInFrame = window.requestAnimationFrame(() => {
+      setIsScreenFading(false)
+    })
+
+    return () => window.cancelAnimationFrame(fadeInFrame)
+  }, [screenIndex])
 
   const heroRotationLimit = Math.min(activeScreen.heroRows.length, 3)
   const activeHeroIndex = heroRotationLimit > 0 ? heroRotationIndex % heroRotationLimit : 0
@@ -868,7 +873,7 @@ function App() {
         {error ? <div className="error">{error}</div> : null}
 
         {activeScreen.type === 'promo' ? (
-          <PromoScreen promoKey={activeScreen.promoKey} />
+          <PromoScreen key={activeScreen.promoKey || 'default-promo'} promoKey={activeScreen.promoKey} />
         ) : activeScreen.type === 'idle' ? null : activeScreen.type === 'common' ? (
           <CommonHeroZone
             meteorRow={activeScreen.splitHeroRows?.meteor}

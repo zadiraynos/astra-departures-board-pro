@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 const DEFAULT_PROMO_KEY = 'default-promo'
 
 function getPromoImagePath(promoKey) {
@@ -10,6 +12,12 @@ function getPromoImagePath(promoKey) {
 export function PromoScreen({ promoKey }) {
   const image = getPromoImagePath(promoKey)
   const fallback = getPromoImagePath(DEFAULT_PROMO_KEY)
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('[PromoScreen]', { promoKey, imageUrl: image })
+    }
+  }, [promoKey, image])
 
   return (
     <section
