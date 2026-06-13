@@ -750,6 +750,7 @@ function App() {
     }
 
     let fadeTimer
+    let fadeInFrame
 
     const screenTimer = window.setTimeout(() => {
       setIsScreenFading(true)
@@ -757,13 +758,16 @@ function App() {
       fadeTimer = window.setTimeout(() => {
         setHeroRotationIndex(0)
         setScreenIndex((current) => (current + 1) % screens.length)
-        setIsScreenFading(false)
+        fadeInFrame = window.requestAnimationFrame(() => {
+          setIsScreenFading(false)
+        })
       }, SCREEN_FADE_MS)
     }, activeScreen?.duration || SCREEN_DURATION_MS)
 
     return () => {
       window.clearTimeout(screenTimer)
       window.clearTimeout(fadeTimer)
+      window.cancelAnimationFrame(fadeInFrame)
     }
   }, [screens.length, screenIndex, activeScreen?.duration])
 
