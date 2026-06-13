@@ -4,9 +4,8 @@ const DEFAULT_PROMO_KEY = 'default-promo'
 
 function getPromoImagePath(promoKey) {
   const safePromoKey = String(promoKey || DEFAULT_PROMO_KEY).trim() || DEFAULT_PROMO_KEY
-  const base = import.meta.env.BASE_URL || '/'
 
-  return `${base}promo/${safePromoKey}.jpg`.replace(/\/{2,}/g, '/')
+  return `${import.meta.env.BASE_URL}promo/${safePromoKey}.jpg`
 }
 
 export function PromoScreen({ promoKey }) {

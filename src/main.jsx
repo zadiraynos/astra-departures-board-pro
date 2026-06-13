@@ -5,12 +5,6 @@ import { PromoScreen } from './components/PromoScreen'
 import { playlist } from './config/playlist'
 import { getHeroImage, getHeroImageFallback, getHeroVisualConfig } from './utils/heroImage'
 
-import promoMeteor from './assets/promos/promo-meteor.jpg'
-import promoParties from './assets/promos/promo-parties.jpg'
-import promoPeterhofRestaurant from './assets/promos/promo-petergof-restaurant.jpg'
-import promoBridges from './assets/promos/promo-bridges.jpg'
-import promoFamily from './assets/promos/promo-family.jpg'
-
 const PIER_ID = 'spusk_so_lvami'
 
 const REFRESH_DATA_MS = 30_000
@@ -38,33 +32,37 @@ const playlistTypeToScreenType = {
 const GOOGLE_SHEETS_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSP3pB7cq4Oj_okRU6nE4Dt7LpVtlz9N2piZ2TM1M-X22xXbNxRtY4Jg09jY387lHw3-wUxwzzdOmd4/pub?output=csv'
 
+function getPromoImagePath(promoKey) {
+  return `${import.meta.env.BASE_URL}promo/${promoKey}.jpg`
+}
+
 const promoBanners = [
   {
-    image: promoMeteor,
+    image: getPromoImagePath('promo-meteor'),
     position: 'center top',
     title: 'Метеоры в Петергоф',
     subtitle: 'Быстрый маршрут по воде без городских пробок',
   },
   {
-    image: promoParties,
+    image: getPromoImagePath('promo-parties'),
     position: 'center center',
     title: 'Праздники на воде',
     subtitle: 'Вечеринки, выпускные и частные события на теплоходе',
   },
   {
-    image: promoPeterhofRestaurant,
+    image: getPromoImagePath('promo-petergof-restaurant'),
     position: 'center center',
     title: 'Петергоф с рестораном',
     subtitle: 'Прогулка на метеоре и гастрономический день у залива',
   },
   {
-    image: promoBridges,
+    image: getPromoImagePath('promo-bridges'),
     position: 'center center',
     title: 'Разводные мосты',
     subtitle: 'Ночной Петербург с лучшего ракурса',
   },
   {
-    image: promoFamily,
+    image: getPromoImagePath('promo-family'),
     position: 'center top',
     title: 'Семейные прогулки',
     subtitle: 'Спокойный маршрут для детей и взрослых',
